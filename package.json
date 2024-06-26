@@ -1,14 +1,16 @@
 {
-  "name": "new-folder",
+  "name": "backend-project",
   "version": "1.0.0",
   "main": "index.js",
+  "type": "module",
   "scripts": {
-    "dev": "nodemon /src/index.js"
+    "dev": "nodemon -r dotenv/config --experimental-json-modules src/index.js"
   },
-  "author": "",
+  "author": "Aasis",
   "license": "ISC",
-  "description": "",
+  "description": "This is my first backend project",
   "dependencies": {
+    "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "mongodb": "^6.7.0",
     "mongoose": "^8.4.3"
