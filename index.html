@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <form id="form">
+        <label for = 'username'>username</label>
+        <input type="text" name = 'username'>
+        <label for='password'>password</label>
+        <input type="password" name="password">
+        <input type="submit">
+    </form>
+   
+    
+</body>
+<script>
+
+   
+
+    document.getElementById('form').addEventListener('submit', (e) => {
+        e.preventDefault()
+        const formData = new FormData(e.currentTarget)
+        const formObj = Object.fromEntries(formData)
+        console.log(formObj)
+    })
+   
+
+
+
+
+
+
+
+//     function data(){
+//         fetch("https://api.escuelajs.co/api/v1/products")
+//     .then((res) => res.json())
+//     .then((data) => console.log(data))
+//     }
+
+//     const product = {
+//         method : "POST",
+//         headers: {
+//                  "Content-type": "application/json;"
+//   },
+//   body: JSON.stringify({
+//   title: "Aasis",
+//   price: 10,
+//   description: "A description",
+//   categoryId: 1,
+//   images: ["https://placeimg.com/640/480/any"]
+// })
+// }
+//     const getData = async (fun) => {
+//         const response = await fetch("https://api.escuelajs.co/api/v1/products", product)
+//         const data = await response.json()
+//         console.log(data)
+//         fun()
+//     }
+//     getData(data)
+</script>
+</html>
