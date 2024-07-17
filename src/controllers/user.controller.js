@@ -3,6 +3,7 @@ import { ApiError } from "../utiles/ApiErrors.js"
 import { User } from "../models/user.model.js"
 import { uploadOnCloudinary } from "../utiles/cloudinaryOrFileupload.js"
 import { ApiResponse } from "../utiles/ApiResponse.js"
+import jwt from "jsonwebtoken"
 
 const registerUser = asyncHandler( async (req, res) => {
 
@@ -140,7 +141,48 @@ const loginUser = asyncHandler(async (req, res) => {
 
  })
 
+ //logout controller
+
+ const logoutUser = asyncHandler(async (req, res) => {
+
+    await User.findByIdAndUpdate(req.user._id,
+        {
+            $set : {
+                refreshToken : undefined
+            }
+        },
+            {
+                new : true
+            }
+
+    )
+    const options = {
+        httpOnly : true,
+        secure : true
+    } 
+
+    return res.status(200)
+    .clearCookie("accessToken", options)
+    .clearCookie("refreshToken", options)
+    .json(
+        new ApiResponse(200,{},"user loggedout successfully!!")
+    )
+ })
+
+ const refreshAccessToken = asyncHandler(async(req, res) => {
+    const incomingRefreshToken = req.cookies?.refreshToken || req.header("Authorization")?.replace()
+
+    if(!token){
+        throw new ApiError(401, "unauthorized request!!")
+    }
+
+    const decodedToken = jwt.verify(incomingRefreshToken, process.env.REFRESH_TOKEN_SECRET)
+
+    
+ })
+
 export {
     registerUser,
-    loginUser
+    loginUser,
+    logoutUser
 }
