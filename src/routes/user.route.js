@@ -31,24 +31,23 @@ router.route("/change-password").post(verifyJWT, changeOldPassword)
 
 //account details change
 
-router.route("/update-details").post(verifyJWT, updateAccountDetails)
+router.route("/update-details").patch(verifyJWT, updateAccountDetails)
 
 //get current user
-router.route("/current-user").post(verifyJWT, getCurrentUser)
+router.route("/current-user").get(verifyJWT, getCurrentUser)
 
 //avatar change
-router.route("/update-avatar").post(
+router.route("/update-avatar").patch(
     upload.single("avatar"),
      verifyJWT,
       updateAvatar)
 
 //cover image change
 
-router.route("/update-coverImage").post(
+router.route("/update-coverImage").patch(
     upload.single("coverImage"),
      verifyJWT,
      updateCoverImage)
 
-//get user
-router.route("/getcurrent-user").post(verifyJWT, getCurrentUser)
+
 export default router;
