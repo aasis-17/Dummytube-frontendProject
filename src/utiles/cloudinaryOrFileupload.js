@@ -28,4 +28,20 @@ import fs from "fs"
         }
     }
 
-    export {uploadOnCloudinary}
+    const deleteFileOnCloudinary = async (localFilePath)=>{
+        try {
+        const response = await cloudinary.uploader
+        .destroy(localFilePath, {
+            resource_type: 'video'
+        })
+         console.log("file has been deleted successfully!!")
+         return response;
+
+        } catch (error) {
+            console.log("problem while deleting file", error)
+            return null
+        
+        }
+    }
+
+    export {uploadOnCloudinary, deleteFileOnCloudinary}
