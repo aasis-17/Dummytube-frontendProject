@@ -6,7 +6,7 @@ const router = Router()
 
 router.route("/create-tweet").post(verifyJWT, createTweet)
 
-router.route("/getUser-tweet").get(verifyJWT, getUserTweets)
+router.route("/getUser-tweet/:userId").get(verifyJWT, getUserTweets)
 
 router.route("/update-tweet/:tweetId").patch(verifyJWT, updateTweet)
 
