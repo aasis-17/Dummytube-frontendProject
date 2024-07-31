@@ -22,7 +22,7 @@ const getAllVideos = asyncHandler(async (req, res) => {
     }
 
     if(query){
-        filter.title = { title: {$regex : query, $options : "i"}}
+        filter.title = {$regex : query, $options : "i"}
     }
 
     if(sortBy && sortType){
