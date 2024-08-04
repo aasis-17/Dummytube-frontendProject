@@ -33,6 +33,7 @@ import videoRoute from "./routes/video.route.js"
 import userTweet from "./routes/tweet.route.js"
 import userPlaylist from "./routes/playlist.route.js"
 import userLike from "./routes/like.route.js"
+import commentRoute from "./routes/comment.route.js"
 
 app.use("/api/v1/users", userRouter)
 
@@ -45,5 +46,7 @@ app.use("/api/v1/tweet", userTweet)
 app.use("/api/v1/playlist", userPlaylist)
 
 app.use("/api/v1/like", userLike)
+
+app.use("/api/v1/comment", commentRoute)
 
 export {app}
