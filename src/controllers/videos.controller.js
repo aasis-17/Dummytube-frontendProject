@@ -4,7 +4,7 @@ import { Video } from "../models/video.model.js"
 import { ApiResponse } from "../utiles/ApiResponse.js"
 import { asyncHandler } from "../utiles/asyncHandler.js"
 import { deleteFileOnCloudinary, uploadOnCloudinary } from "../utiles/cloudinaryOrFileupload.js"
-import { isValidObjectId } from "mongoose"
+import mongoose, { isValidObjectId } from "mongoose"
 
 
 
@@ -106,7 +106,47 @@ const getVideoById = asyncHandler(async (req, res) => {
         throw new ApiError(400, "videoid invalid!!")
     }
 
-    const video = await Video.findById(videoId)
+    const video = await Video.aggregate([
+        {
+            $match : {
+                _id : new mongoose.Types.ObjectId(videoId)
+            }
+        },{
+            $lookup :{
+                from : "likes",
+                localField : "_id",
+                foreignField : "video",
+                as : "videoLike"
+            }
+        },
+        {
+            $addFields : {
+                videoLikeCount : {
+                    $size : "$videoLike"
+                },
+                isLiked : {
+                    $cond : {
+                        if : { $in : [req.user?._id, "$videoLike.likedBy"]},
+                        then : true,
+                        else : false
+                    }
+                }
+            }
+        }, 
+        {
+            $project : {
+                videoFile : 1,
+                thumnail : 1,
+                title : 1,
+                description : 1,
+                owner : 1,
+                duration : 1,
+                videoLikeCount : 1,
+                isLiked : 1
+
+            }
+        }
+    ])
 
     if(!video) {
         throw new ApiError(400, "Video doesnot exists!!")
