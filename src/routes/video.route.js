@@ -19,7 +19,7 @@ router.route("/upload-video").post(verifyJWT,
     publishAVideo
 )
 
-router.route("/get-allVideos").get(verifyJWT, getAllVideos)
+router.route("/get-allVideos").get( getAllVideos)
 
 router.route("/get-video/:videoId").get( verifyJWT, getVideoById)
 

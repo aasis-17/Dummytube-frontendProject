@@ -11,14 +11,14 @@ import mongoose, { isValidObjectId } from "mongoose"
 
 
 const getAllVideos = asyncHandler(async (req, res) => {
-    const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query
+    const { page = 1, limit = 10, query, sortBy= "createdAt", sortType="dec", userId } = req.query
     //TODO: get all videos based on query, sort, pagination
-
+    console.log(req.query)
     const filter = {}
     const sort = {}
 
     if(userId){
-        filter.owner = userId
+        filter.owner = mongoose.Types.ObjectId(userId)
     }
 
     if(query){
@@ -34,7 +34,40 @@ const getAllVideos = asyncHandler(async (req, res) => {
 
     const skip = (pageNo - 1) * limitNo; //NOTE : skip no of videos 
 
-    const allVideos = await Video.find(filter).sort(sort).skip(skip).limit(limit)
+    //const allVideos = await Video.find(filter).sort(sort).skip(skip).limit(limit)
+    const allVideos = await Video.aggregate([
+        {
+            $match : filter
+        },
+        {
+            $lookup : {
+                from : "users",
+                localField : "owner",
+                foreignField : "_id",
+                as : "owner",
+                pipeline : [
+                    {
+                        $project : {
+                            fullName : 1,
+                            avatar : 1,
+
+                        }
+                    }
+                ]
+            }
+            
+        },
+        {
+            $addFields : {
+                owner : {
+                    $first : "$owner"
+                }
+            }
+        },
+        {
+            $sort : sort
+        }
+    ])
 
     //for pagination
 
@@ -239,7 +272,7 @@ const togglePublishStatus = asyncHandler(async (req, res) => {
 
     console.log(video.owner, req.user._id)
 
-    if(video.owner.equals(req.user?._id) ){  // NOTE: comparind ObjectId we cau use .equals() method
+    if(video.owner.equals(req.user?._id) ){  // NOTE: for comparing ObjectId we use .equals() method
         video.isPublished = true
         await video.save({ validateBeforeSave : false })
     }else{

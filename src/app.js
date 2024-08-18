@@ -14,7 +14,7 @@ app.use(cors(
     }
 ))
 
-app.use(express.json({limit : "16kb"}))
+app.use(express.json())//{limit : "16kb"}))
 
 app.use(express.urlencoded({
     extended : true,
@@ -34,6 +34,7 @@ import userTweet from "./routes/tweet.route.js"
 import userPlaylist from "./routes/playlist.route.js"
 import userLike from "./routes/like.route.js"
 import commentRoute from "./routes/comment.route.js"
+import dashboardRoute from "./routes/dashboard.route.js"
 
 app.use("/api/v1/users", userRouter)
 
@@ -48,5 +49,7 @@ app.use("/api/v1/playlist", userPlaylist)
 app.use("/api/v1/like", userLike)
 
 app.use("/api/v1/comment", commentRoute)
+
+app.use("/api/v1/dashboard", dashboardRoute)
 
 export {app}

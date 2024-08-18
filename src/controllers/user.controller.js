@@ -29,7 +29,7 @@ const registerUser = asyncHandler( async (req, res) => {
 
     //get user details from frontend
     const {fullName, email, password, username} = req.body
-    console.log(fullName)
+    console.log(req.body)
     //validate user details from frontend (no empty fields)
      if ([fullName, email, password, username].some((field) => field?.trim() === "" )){
          throw new ApiError(400, "All fields are required !!")
@@ -45,7 +45,9 @@ const registerUser = asyncHandler( async (req, res) => {
      }
 
     // //check for file if compulsary(we compulsary avatar)
-     const avatarLocalPath = req.files?.avatar[0]?.path;
+     const avatarLocalPath = req.files?.avatar[0]?.path
+     console.log(avatarLocalPath)
+     
 
      // =checking for coverImage, if not given undefined will be returned so we need solve it. 
 
@@ -108,7 +110,7 @@ const loginUser = asyncHandler(async (req, res) => {
     }
 
     const user = await User.findOne({
-        $or : [{username, email}]
+        $or : [{username},{email}]
     })
 
     if(!user){
