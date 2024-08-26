@@ -50,6 +50,7 @@ const getAllVideos = asyncHandler(async (req, res) => {
                         $project : {
                             fullName : 1,
                             avatar : 1,
+                            username : 1
 
                         }
                     }
@@ -132,7 +133,8 @@ const publishAVideo = asyncHandler(async (req, res) => {
 })
 
 const getVideoById = asyncHandler(async (req, res) => {
-    const { videoId } = req.params
+    const { videoId, loginUser } = req.params
+    console.log(req.params)
     //TODO: get video by id
 
     if(!isValidObjectId(videoId)){
@@ -144,7 +146,8 @@ const getVideoById = asyncHandler(async (req, res) => {
             $match : {
                 _id : new mongoose.Types.ObjectId(videoId)
             }
-        },{
+        },
+        {
             $lookup :{
                 from : "likes",
                 localField : "_id",
@@ -159,7 +162,7 @@ const getVideoById = asyncHandler(async (req, res) => {
                 },
                 isLiked : {
                     $cond : {
-                        if : { $in : [req.user?._id, "$videoLike.likedBy"]},
+                        if : { $in : [new mongoose.Types.ObjectId(loginUser), "$videoLike.likedBy"]},
                         then : true,
                         else : false
                     }
@@ -185,7 +188,7 @@ const getVideoById = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Video doesnot exists!!")
     }
 
-    return res.status(200).json( new ApiResponse(200, video, "video sucessfully fetched!!"))
+    return res.status(200).json( new ApiResponse(200, video[0], "video sucessfully fetched!!"))
 
 
 })

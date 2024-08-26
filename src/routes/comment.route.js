@@ -4,7 +4,7 @@ import { verifyJWT } from "../middlewares/auth.middleware.js"
 
 const router = Router()
 
-router.route("/getall-video-comments/:videoId").get( verifyJWT, getVideoComments)
+router.route("/getall-video-comments/:videoId").get(verifyJWT, getVideoComments)
 
 router.route("/add-comment/:videoId").post( verifyJWT, addComment)
 
