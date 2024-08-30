@@ -1,4 +1,4 @@
-import { isValidObjectId } from "mongoose"
+import mongoose, { isValidObjectId } from "mongoose"
 import { ApiError } from "../utiles/ApiErrors.js"
 import { ApiResponse } from "../utiles/ApiResponse.js"
 import { asyncHandler } from "../utiles/asyncHandler.js"
@@ -18,7 +18,47 @@ const getVideoComments = asyncHandler(async (req, res) => {
 
     const skip = (pageNo - 1) * limitNo
 
-    const videoComments = await Comment.find( {video : videoId}).skip(skip).sort("-createdAt")
+    //const videoComments = await Comment.find( {video : videoId}).skip(skip).sort("-createdAt")
+
+    const videoComments = await Comment.aggregate([
+        {
+            $match : {
+                video : new mongoose.Types.ObjectId(videoId)
+            }
+        },
+        {
+            $lookup : {
+                from : "users",
+                localField : "owner",
+                foreignField : "_id",
+                as : "ownerDetail",
+                pipeline : [
+                    {
+                        $project : {
+                            fullName : 1,
+                            avatar : 1,
+                            username : 1
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            $addFields : {
+                ownerDetail : {
+                        $first : "$ownerDetail"
+                }
+            }
+        },
+        {
+            $skip : skip
+        },
+        {
+            $sort : {
+                createdAt : -1
+            }
+        }
+    ])
 
     const totalCommentCount = await Comment.countDocuments({ video : videoId})
 

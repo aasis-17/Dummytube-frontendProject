@@ -8,8 +8,8 @@ const createPlaylist = asyncHandler(async (req, res) => {
     const {name, description} = req.body
     //TODO: create playlist
 
-    if(!name && !description){
-        throw new ApiError(400, "Name and description is missing!!")
+    if(!name){
+        throw new ApiError(400, "Name is missing!!")
     }
 
     const playlist = await Playlist.create({

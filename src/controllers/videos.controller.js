@@ -133,13 +133,24 @@ const publishAVideo = asyncHandler(async (req, res) => {
 })
 
 const getVideoById = asyncHandler(async (req, res) => {
-    const { videoId, loginUser } = req.params
-    console.log(req.params)
-    //TODO: get video by id
+    const { videoId } = req.params
+    const {loginUser} = req.query
+    console.log(loginUser)
+    //TODO: get video by id:
+    let userId;
 
     if(!isValidObjectId(videoId)){
         throw new ApiError(400, "videoid invalid!!")
     }
+    
+    if(loginUser){
+        if(!isValidObjectId(loginUser)){
+            throw new ApiError(400 , "Invalid userId!!")
+        }
+        userId = loginUser
+
+    }
+     
 
     const video = await Video.aggregate([
         {
@@ -162,7 +173,7 @@ const getVideoById = asyncHandler(async (req, res) => {
                 },
                 isLiked : {
                     $cond : {
-                        if : { $in : [new mongoose.Types.ObjectId(loginUser), "$videoLike.likedBy"]},
+                        if : { $in : [new mongoose.Types.ObjectId(userId), "$videoLike.likedBy"]},
                         then : true,
                         else : false
                     }

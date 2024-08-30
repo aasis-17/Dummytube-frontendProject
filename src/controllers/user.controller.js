@@ -4,7 +4,7 @@ import { User } from "../models/user.model.js"
 import { uploadOnCloudinary } from "../utiles/cloudinaryOrFileupload.js"
 import { ApiResponse } from "../utiles/ApiResponse.js"
 import jwt from "jsonwebtoken"
-import mongoose from "mongoose"
+import mongoose, { isValidObjectId } from "mongoose"
 
 
 const generateAccessAndRefreshToken = async(userId) =>{
@@ -334,11 +334,21 @@ const getCurrentUser = asyncHandler(async(req, res) =>{
 const getUserChannelProfile = asyncHandler(async(req, res) => {
 
     const {username} = req.params
+    const {loginUser} = req.query
 
+    let userId;
     if(!username?.trim()){
         throw new ApiError(404, "username is missing!!")
-
     }
+
+    if(loginUser){
+        if(!isValidObjectId(loginUser)){
+            throw new ApiError(400, "Invalid login user!!")
+        }
+        userId = loginUser
+    }
+    
+
 
     const channelProfile = await User.aggregate([
         {
@@ -374,7 +384,7 @@ const getUserChannelProfile = asyncHandler(async(req, res) => {
                 },
                 isSubscribed : {
                     $cond : {
-                        if : { $in : [req.user?._id, "$subscribers.subscriber"]},
+                        if : { $in : [new mongoose.Types.ObjectId(userId), "$subscribers.subscriber"]},
                         then : true,
                         else : false
                     }
