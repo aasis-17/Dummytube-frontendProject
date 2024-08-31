@@ -11,6 +11,7 @@ import Search from "./Search.jsx";
 import Home from "./Home.jsx";
 import Container from "./container/Container.jsx";
 import VideoDetail from "./videoDetail/VideoDetail.jsx";
+import ChannelProfile from "./ChannelProfile.jsx";
 
 export {
     Header,
@@ -25,5 +26,6 @@ export {
     Search,
     Home,
     Container,
-    VideoDetail
+    VideoDetail,
+    ChannelProfile
 }

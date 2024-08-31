@@ -8,9 +8,8 @@ import subService from '../../services/subscriptionServise'
 import { useSelector } from 'react-redux'
 import PlaylistSection from './PlaylistSection'
 
-import { useLocation } from 'react-router-dom'
 
-function VideoSection({  videoDetail, setVideoLike}) {
+function VideoSection({ videoDetail, setVideoLike}) {
 
     const [publicId, setPublicId] = useState("")
     const [channelProfile, setChannelProfile] = useState({})
@@ -20,8 +19,6 @@ function VideoSection({  videoDetail, setVideoLike}) {
 
     const navigate = useNavigate()
     const loginUserId = useSelector((state) => state.authReducer.userData?._id)
-
-
 
       const getPublicId = (videoFile) =>  {
         const arr = videoFile.split("/")
@@ -52,7 +49,6 @@ function VideoSection({  videoDetail, setVideoLike}) {
 
       useEffect(() => {
         userService.getUserProfile(videoDetail.owner, loginUserId)
-        .then((res) => res.json())
         .then((data) => (
           setChannelProfile(data.data),
           setSubscribe(data.data.isSubscribed),

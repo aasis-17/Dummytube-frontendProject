@@ -30,7 +30,7 @@ function SideNav({sidebar}) {
     const navItems = [
         {
             name : "Your channel",
-            slug : "/",
+            slug : "/channel-profile",
             keep : true,
             logo :faCircleUser
         },

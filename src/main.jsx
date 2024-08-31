@@ -5,7 +5,7 @@ import './index.css'
 import store from './store/store.js'
 import { Provider } from "react-redux"
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
-import { SignUp, PageProtector, Logo, Login, Home, VideoDetail} from "./components/index.js"
+import { SignUp, PageProtector, Logo, Login, Home, VideoDetail, ChannelProfile} from "./components/index.js"
 import CommentSection from './components/videoDetail/CommentSection.jsx'
 import DescriptionSection from './components/videoDetail/DescriptionSection.jsx'
 import LeftSection from './components/videoDetail/LeftSection.jsx'
@@ -19,6 +19,12 @@ const router  = createBrowserRouter([
       {
         path : "/",
         element : <Home />
+      },
+      {
+        path : "/channel-profile",
+        element : (<PageProtector>
+                    <ChannelProfile />
+        </PageProtector>)
       },
       {
         path : "video-detail/:videoId",
@@ -40,6 +46,7 @@ const router  = createBrowserRouter([
       }
     ]
   },
+  
   {
     
       path : "/create-account",

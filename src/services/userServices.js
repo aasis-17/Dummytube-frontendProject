@@ -1,9 +1,9 @@
  class userServices{
 
-    async getUserProfile(username, loginUser= ""){
+    async getUserProfile(channelId, loginUser= ""){
         try{
-        const response = await fetch(`/api/v1/users/channel-profile/${username}?loginUser=${loginUser}`)
-        return response.ok && response
+        const response = await fetch(`/api/v1/users/channel-profile/${channelId}?loginUser=${loginUser}`)
+        return response.ok && response.json()
         }catch(error){
             throw error?.message
         }     
