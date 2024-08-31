@@ -50,7 +50,7 @@ console.log(authStatus)
                 </button>)
                  }
 
-                <div className="text-2xl font-semibold">  
+                <div onClick={() => navigate("/")} className="text-2xl font-semibold">  
                     <Logo />
                 </div>
                 <div className='w-[300px]'>

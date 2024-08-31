@@ -45,9 +45,10 @@ class authServices{
 
     async logout(){
         try{
-            await fetch("/api/v1/users/logout",{
+            const response = await fetch("/api/v1/users/logout",{
                 method: "POST"
             })
+            return response.ok && response
         }catch(error){
             throw error
         }

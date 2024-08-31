@@ -4,19 +4,23 @@ import { useDispatch, useSelector } from 'react-redux'
 import { getVideoData } from '../store/videoSlice'
 import { Link } from "react-router-dom"
 import { Container } from "./index"
+import useTimeConverterHook from '../utils/usetimeConverterHook'
 
 function Home() {
     const storeVideos = useSelector((state) => state.videoReducer.data)
     const [videos, setVideos] = useState(storeVideos)
+   // const stringTime = useTimeConverterHook()
 
       
       useEffect(() => {
         if(!storeVideos){
           videoService.getAllVideos()
-          .then((data) => setVideos(data.data.allVideos))
+          .then((data) => (setVideos(data.data.allVideos),
+           console.log(data.data.allVideos[0].createdAt)))
+          .catch((error) => console.log(error?.message))
         }else{
           setVideos(storeVideos)
-        }   
+        }  
        },[storeVideos])
     
 
@@ -26,9 +30,10 @@ function Home() {
     <Container>
       <div className=" h-full flex justify-evenly flex-wrap gap-y-6 " >   
         { videos.map((video) => {
+          const convertTime = useTimeConverterHook(video.createdAt)
             return(
               <div key={video._id}>
-              <Link state={video.owner.username} className="cursor-pointer"  to={`/video-detail/${video._id}`}  >
+              <Link state={video.owner.username} className="cursor-pointer"  to={`/video-detail/${video._id}/description`}  >
                 <div className="  bg-gray-300 w-[350px] h-[230px] rounded  shadow-lg hover:shadow-xl transition-shadow duration-300">
                   <div className=" h-full rounded overflow-hidden shadow-lg">
                     <div className='bg-blue-300 h-34 overflow-hidden cursor-pointer'>
@@ -39,7 +44,7 @@ function Home() {
                       <div className="font-semibold text-lg">{video.title}</div>
                         <div className='flex justify-between'>
                             <div className="text-gray-600 text-base ">{video.owner.fullName}</div>
-                            <div className="text-gray-500 text-sm">{video.createdAt}</div>
+                            <div className="text-gray-500 text-sm">{convertTime}</div>
                         </div>
                        
                     </div>

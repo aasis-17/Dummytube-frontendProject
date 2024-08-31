@@ -14,9 +14,9 @@ class videoServices {
         } 
     }
 
-    async getVideo(videoId, loginUser) {
+    async getVideo(videoId, loginUser="") {
         try {
-            const response = await fetch(`/api/v1/video/get-video/${videoId}/${loginUser}`)
+            const response = await fetch(`/api/v1/video/get-video/${videoId}?loginUser=${loginUser}`)
             return response.ok && response
             
         } catch (error) {

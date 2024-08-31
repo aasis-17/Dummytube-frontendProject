@@ -10,7 +10,7 @@ import SideNav from "./header/SideNav.jsx";
 import Search from "./Search.jsx";
 import Home from "./Home.jsx";
 import Container from "./container/Container.jsx";
-import VideoDetail from "./videoDetail.jsx";
+import VideoDetail from "./videoDetail/VideoDetail.jsx";
 
 export {
     Header,
