@@ -44,10 +44,41 @@ const getVideoComments = asyncHandler(async (req, res) => {
             }
         },
         {
+            $lookup :{
+                from : "likes",
+                localField : "_id",
+                foreignField : "comment",
+                as : "commentLike"
+            }
+        },
+        {
             $addFields : {
                 ownerDetail : {
                         $first : "$ownerDetail"
-                }
+                },
+
+                commentlikeCount : {
+                    $size : "$commentLike"
+                },
+                
+                    isLiked : {
+                        $cond : {
+                            if : { $in : [new mongoose.Types.ObjectId(req.user?._id),"$commentLike.likedBy"]},
+                            then : true,
+                            else : false
+                        }
+                    
+                }       
+            }  
+        },{
+            $project :{
+                content : 1,
+                ownerDetail : 1,
+                commentLikeCount : 1,
+                isLiked : 1,
+                video : 1,
+                createdAt : 1,
+                updatedAt : 1
             }
         },
         {

@@ -51,7 +51,7 @@ router.route("/update-coverImage").patch(
 
 //get user channel profile
 
-router.route("/channel-profile/:username").get( getUserChannelProfile)
+router.route("/channel-profile/:channelId").get( getUserChannelProfile)
 
 //get user watch history
 

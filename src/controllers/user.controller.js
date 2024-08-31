@@ -333,12 +333,12 @@ const getCurrentUser = asyncHandler(async(req, res) =>{
 
 const getUserChannelProfile = asyncHandler(async(req, res) => {
 
-    const {username} = req.params
+    const {channelId} = req.params
     const {loginUser} = req.query
 
     let userId;
-    if(!username?.trim()){
-        throw new ApiError(404, "username is missing!!")
+    if(!isValidObjectId(channelId)){
+        throw new ApiError(404, "Invalid channelId!!")
     }
 
     if(loginUser){
@@ -353,7 +353,7 @@ const getUserChannelProfile = asyncHandler(async(req, res) => {
     const channelProfile = await User.aggregate([
         {
             $match : {
-                username : username?.toLowerCase()
+                _id : new mongoose.Types.ObjectId(channelId)
             }
         },
         {
