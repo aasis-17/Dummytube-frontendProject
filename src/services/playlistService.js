@@ -51,10 +51,25 @@ class playlistServices {
                         description : name
                     })
             })
+            console.log(response.ok)
+            return response.ok && response.json()
+        }catch(error){
+            console.log(error?.message)
+        }
+    }
+
+    async deletePlaylist(playlistId) {
+        try{
+            const response = await fetch(`/api/v1/playlist/delete-playlist/${playlistId}`,
+                {
+                    method : "DELETE"
+                }
+            )
             return response.ok && response
         }catch(error){
             console.log(error?.message)
         }
+       
     }
 
 }

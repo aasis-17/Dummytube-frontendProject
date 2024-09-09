@@ -1,6 +1,5 @@
 import React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { Link } from 'react-router-dom'
 import { faCirclePlay, faHeart, faListUl, faClockRotateLeft, faScrewdriverWrench } from '@fortawesome/free-solid-svg-icons'
 import { faCircleUser } from '@fortawesome/free-solid-svg-icons'
 import { faRightFromBracket } from '@fortawesome/free-solid-svg-icons'
@@ -8,14 +7,16 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useNavigate } from 'react-router-dom'
 import authService from '../../services/authServices'
 import { logout as storeLogout } from '../../store/authSlice'
+import Navigation from '../Navigation'
 
 function SideNav({sidebar}) {
     console.log(sidebar)
     const authStatus = useSelector((state) => state.authReducer.status)
+    const loginUserId = useSelector(state => state.authReducer.userData?._id)
     const navigate = useNavigate()
     const dispatch = useDispatch()
 
-    const logout =async () => {
+    const logout = async () => {
         try{
             const response = await authService.logout()
             if (response.ok){
@@ -30,7 +31,7 @@ function SideNav({sidebar}) {
     const navItems = [
         {
             name : "Your channel",
-            slug : "/channel-profile",
+            slug : `/channel-profile/${loginUserId}`,
             keep : true,
             logo :faCircleUser
         },
@@ -48,7 +49,7 @@ function SideNav({sidebar}) {
         },
         {
             name : "Playlsit",
-            slug : "",
+            slug : `/playlist/${loginUserId}`,
             keep : authStatus,
             logo : faListUl,
         },
@@ -76,7 +77,14 @@ function SideNav({sidebar}) {
     <div onClick={(e) => e.stopPropagation()}  className={`${sidebar? "" : "-translate-x-full"} w-[300px] h-[500px] bg-gray-700   bg-opacity-95 sticky  transition delay-100  `}>
         <nav className=' flex flex-col gap-7 text-xl'>
             <ul className='flex-1 px-5' >
-                {navItems.map((item) => {
+
+                <Navigation
+                    navItems={navItems}
+                    logoClassName={'h-6 pr-7 '}
+                    className={"block my-3 py-3.5 px-3  rounded transition duration-200 hover:bg-blue-600 hover:text-white"} 
+                />
+
+                {/* {navItems.map((item) => {
                     if(item.keep){
                        return (
                         <li className="block my-3 py-3.5 px-3  rounded transition duration-200 hover:bg-blue-600 hover:text-white" key={item.name}>
@@ -91,7 +99,7 @@ function SideNav({sidebar}) {
                         )
                     }
                     
-})}
+})} */}
                 <li onClick={logout} className="block my-3 py-3.5 px-3  rounded transition duration-200 hover:bg-blue-600 hover:text-white" key={logOutBtn.name}>
                             <FontAwesomeIcon className='h-6 pr-7 ' icon={logOutBtn.logo}/>
                              {logOutBtn.name}  

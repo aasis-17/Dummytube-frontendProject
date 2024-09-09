@@ -9,6 +9,12 @@ import { SignUp, PageProtector, Logo, Login, Home, VideoDetail, ChannelProfile} 
 import CommentSection from './components/videoDetail/CommentSection.jsx'
 import DescriptionSection from './components/videoDetail/DescriptionSection.jsx'
 import LeftSection from './components/videoDetail/LeftSection.jsx'
+import PlaylistContainer from './components/container/PlaylistContainer.jsx'
+import PlaylistSection from './components/videoDetail/PlaylistSection.jsx'
+import Playlist from './components/Playlist.jsx'
+import ProfileVideos from './components/ProfileVideos.jsx'
+import ProfileLikedVideos from './components/ProfileLikedVideos.jsx'
+
 
 
 const router  = createBrowserRouter([
@@ -21,10 +27,34 @@ const router  = createBrowserRouter([
         element : <Home />
       },
       {
-        path : "/channel-profile",
+        path : "/playlist/:channelId",
+        element : (<PlaylistContainer>
+                      <Playlist />
+                  </PlaylistContainer>)
+      },
+      {
+        path : "/channel-profile/:channelId",
         element : (<PageProtector>
                     <ChannelProfile />
-        </PageProtector>)
+                  </PageProtector>),
+        children : [
+          {
+            path : "playlist",
+            element : (<PlaylistContainer>
+                          <Playlist />
+                      </PlaylistContainer>)
+          },
+          {
+            path : "videos",
+            element : <ProfileVideos />
+
+          },
+          {
+            path : "likedVideos",
+            element : <ProfileLikedVideos />
+          }
+        ]
+       
       },
       {
         path : "video-detail/:videoId",

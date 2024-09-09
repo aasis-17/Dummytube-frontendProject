@@ -1,43 +1,51 @@
 import React, { useEffect, useState } from 'react'
 import { Outlet, useLocation, useParams } from 'react-router-dom'
 import videoService from '../../services/videosService'
-import { useSelector } from 'react-redux'
+import userService from '../../services/userServices'
+import { useDispatch, useSelector } from 'react-redux'
 import VideoSection from './VideoSection'
 import LeftSection from './LeftSection'
-import CommentSection from './CommentSection'
-import DescriptionSection from './DescriptionSection'
+import { setVideoDetails} from '../../store/videoSlice'
 
 function VideoDetail() {
-
-  
+ 
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
 
   const params = useParams()
   const videoId = params.videoId
 
-    const loginUser = useSelector((state) => state.authReducer.userData?._id)
+  const dispatch = useDispatch()
 
+  const loginUser = useSelector((state) => state.authReducer.userData?._id)
+  const videoDetail = useSelector ((state) => state.videoReducer.videoDetail)
+ 
 
-    const [videoDetail, setVideoDetail] = useState({})
-    const [videoLike, setVideoLike] = useState()
+   // const [videoDetail, setVideoDetail] = useState({})
+   // const [videoLike, setVideoLike] = useState()
+
+   const getVideoDetail = videoService.getVideo(videoId, loginUser)
+   
 
     useEffect(() => {
         setError("") 
-        const videoPromise = videoService.getVideo(videoId, loginUser)
-
-        const response = Promise.all([videoPromise])
-        response.then((data) =>   data.map((value) => value.json()))
+        Promise.all([getVideoDetail])
         .then((data) => ( 
-          data[0].then((data) => (
-            setVideoDetail(data.data),
-            setVideoLike(data.data.isLiked)
+          console.log(data),
+            dispatch(setVideoDetails(
+              {
+              detail : data[0].data,
+              userLikedVideo : data[0].data.isLiked,
+              // videoOwnerProfile : null,
+              // userSubscribedChannel : false
+            }))
+           // setVideoLike(data.data.isLiked)
           ))
-      ))
+
         .catch((error) => setError(error.message))
         .finally(() => setLoading(false))
         
-    },[videoLike])
+    },[])
     
   return !loading? (
     <div>
@@ -46,15 +54,16 @@ function VideoDetail() {
       <div className="flex flex-1">
 
         <LeftSection 
-        videoId={videoId}
-         description = {videoDetail.description} />
+         videoId={videoId}
+         //description = {videoDetail.detail.description}
+          />
 
         {/* Video Section */}
 
         <div className="flex-1 ml-4 rounded-lg">
           <VideoSection  
-            videoDetail={videoDetail} 
-            setVideoLike={setVideoLike} 
+            //videoDetail={videoDetail} 
+            //setVideoLike={setVideoLike} 
             />
         </div>
         

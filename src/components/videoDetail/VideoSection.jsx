@@ -7,20 +7,32 @@ import userService from '../../services/userServices'
 import subService from '../../services/subscriptionServise'
 import { useSelector } from 'react-redux'
 import PlaylistSection from './PlaylistSection'
+import { setChannelProfile, setVideoDetails } from '../../store/videoSlice'
+import { useDispatch } from 'react-redux'
+import {useDebounce} from "../../utils"
+import PlaylistContainer from '../container/PlaylistContainer'
 
 
-function VideoSection({ videoDetail, setVideoLike}) {
+function VideoSection() {
 
-    const [publicId, setPublicId] = useState("")
-    const [channelProfile, setChannelProfile] = useState({})
-    const [subscribe, setSubscribe] = useState()
+  const videoDetail = useSelector((state) => state.videoReducer.videoDetail)
+  const channelProfile = useSelector(state => state.videoReducer.channelProfile)
+  const loginUserId = useSelector((state) => state.authReducer.userData?._id)
+  console.log(videoDetail )
+
+  const [loading, setLoading] = useState(true)
+
+  const dispatch = useDispatch()
+  
+
+    const [publicId, setPublicId] = useState(() => getPublicId(videoDetail.detail.videoFile))
     const [playlistDisplay, setPlaylistDisplay] = useState(false)
-    console.log(videoDetail )
+    
 
     const navigate = useNavigate()
-    const loginUserId = useSelector((state) => state.authReducer.userData?._id)
 
-      const getPublicId = (videoFile) =>  {
+
+       function getPublicId  (videoFile)   {
         const arr = videoFile.split("/")
         return arr[arr.length - 1].replace(".mp4", "")
     }
@@ -28,7 +40,9 @@ function VideoSection({ videoDetail, setVideoLike}) {
     const toggleLike = async (videoId) => {
         try{
           const response = await likeService.toggleVideoLike(videoId)
-          if(response.ok) setVideoLike((prev) => !prev)
+          if(response.ok) dispatch(setVideoDetails({
+            userLikedVideo : !videoDetail.userLikedVideo
+          }))
           else {
                 navigate("/login")
         }
@@ -37,29 +51,39 @@ function VideoSection({ videoDetail, setVideoLike}) {
         }    
       }
 
+      const debounceToggleLike = useDebounce(toggleLike, 300)
+
       const toggleSubscription = async (channelId) => {
         try {
           const response = await subService.toggleSubscription(channelId)
-          response.ok && setSubscribe((prev) => !prev)
+          response.ok && dispatch(setChannelProfile({
+            userSubscribedChannel : !channelProfile.userSubscribedChannel
+          }))
         } catch (error) {
           console.log(error?.message)
           
         }
       }
 
+      const debounceToggleSubscription = useDebounce(toggleSubscription, 300)
+
       useEffect(() => {
-        userService.getUserProfile(videoDetail.owner, loginUserId)
+
+        userService.getUserProfile(videoDetail.detail.owner, loginUserId)
         .then((data) => (
-          setChannelProfile(data.data),
-          setSubscribe(data.data.isSubscribed),
-          console.log(channelProfile)
+          dispatch(setChannelProfile(
+            {
+            channelOwnerProfile : data.data,
+            userSubscribedChannel : data.data.isSubscribed
+            }
         ))
+      ))
         .catch((error) => console.log(error?.message))
+        .finally (() => setLoading(false))
 
-        setPublicId(getPublicId(videoDetail.videoFile))
-    },[publicId, subscribe])
+    },[])
 
-  return (
+  return !loading ? (
     <div className='relative'>
         <iframe
         className='rounded-2xl object-fill'
@@ -71,32 +95,38 @@ function VideoSection({ videoDetail, setVideoLike}) {
         
       ></iframe>
       <div className='w-full bg-white h-[100px] '>
-        <div className='h-10 px-4 py-2'>{videoDetail.title}</div>
+        <div className='h-10 px-4 py-2'>{videoDetail.detail.title}</div>
         <div className='flex items-center justify-between px-2'>
         <div className='flex gap-4 items-center w-[50%] justify-around'>
-          <div onClick={() => navigate("/channel-profile")} className='flex cursor-pointer w-full gap-12'>
+          <div onClick={() => navigate(`/channel-profile/${videoDetail.detail.owner}`)} className='flex cursor-pointer w-full gap-12'>
             <div className='w-12 h-12 rounded-full overflow-hidden'>
-                <img src={channelProfile.avatar} className='w-full h-full'/>
+                <img src={channelProfile.channelOwnerProfile.avatar} className='w-full h-full'/>
             </div>
             <div className='flex flex-col'>
-                <h2>{channelProfile.username}</h2>
-                <h5>{channelProfile.subscriberCount}</h5>
+                <h2>{channelProfile.channelOwnerProfile.username}</h2>
+                <h5>{channelProfile.channelOwnerProfile.subscriberCount}</h5>
             </div>
             </div>
-            <div onClick={() => toggleSubscription(channelProfile._id)} className='cursor-pointer bg-red-500 w-32 h-12 text-center rounded-2xl'>
-                {channelProfile.isSubscribed ? "Subscribed" : "Subscribe"}
+            <div onClick={() => debounceToggleSubscription(channelProfile.channelOwnerProfile._id)} className='cursor-pointer bg-red-500 w-32 h-12 text-center rounded-2xl'>
+                {channelProfile.userSubscribedChannel ? "Subscribed" : "Subscribe"}
             </div>
         </div>
         <div className='flex items-center gap-2 w-[40%] cursor-pointer justify-evenly'>
-            <div onClick={() => toggleLike(videoDetail._id)}>
-            <FontAwesomeIcon icon={faHeart} style={{color: videoDetail.isLiked ? "#db0f4c" : ""}} />
-            <span>{videoDetail.videoLikeCount}</span>
+            <div onClick={() => debounceToggleLike(videoDetail.detail._id)}>
+            <FontAwesomeIcon icon={faHeart} style={{color: videoDetail.userLikedVideo ? "#db0f4c" : ""}} />
+            <span>{videoDetail.detail.videoLikeCount}</span>
             </div>
             <div onClick={() => setPlaylistDisplay((prev => !prev))} className='cursor-pointer'>
               playlist
             { playlistDisplay &&  
             (
-                <PlaylistSection videoId={videoDetail._id} userId = {loginUserId} />
+            //<PlaylistContainer videoId={videoDetail.detail._id} userId = {loginUserId} >
+                 <PlaylistSection 
+                //videoId={videoDetail.detail._id} 
+                //userId = {loginUserId}
+                 />
+           // </PlaylistContainer>
+               
             )
                }
               </div>
@@ -105,7 +135,7 @@ function VideoSection({ videoDetail, setVideoLike}) {
         </div>
       </div>
     
-  )
+  ) : (<p>loading...</p>)
 }
 
 export default VideoSection

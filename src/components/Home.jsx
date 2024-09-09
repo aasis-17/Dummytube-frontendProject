@@ -4,35 +4,38 @@ import { useDispatch, useSelector } from 'react-redux'
 import { getVideoData } from '../store/videoSlice'
 import { Link } from "react-router-dom"
 import { Container } from "./index"
-import useTimeConverterHook from '../utils/usetimeConverterHook'
+import { useTimeConverterHook } from '../utils'
+
 
 function Home() {
-    const storeVideos = useSelector((state) => state.videoReducer.data)
-    const [videos, setVideos] = useState(storeVideos)
-   // const stringTime = useTimeConverterHook()
 
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
+
+  const dispatch = useDispatch()
+
+  const storeVideos = useSelector((state) => state.videoReducer.allVideos)
+  const searchTitle = useSelector((state) => state.videoReducer.searchTitle)
       
       useEffect(() => {
-        if(!storeVideos){
-          videoService.getAllVideos()
-          .then((data) => (setVideos(data.data.allVideos),
-           console.log(data.data.allVideos[0].createdAt)))
-          .catch((error) => console.log(error?.message))
-        }else{
-          setVideos(storeVideos)
-        }  
-       },[storeVideos])
-    
+        setError("")
 
-  if(videos && videos.length !== 0) 
-    return (
+          videoService.getAllVideos(searchTitle)
+          .then((data) => dispatch(getVideoData(data.data.allVideos)))
+          .catch((error) => setError(error?.message))
+          .finally(() => setLoading(false))
+        
+       },[searchTitle])
+    
+   return  !loading ?  (
     <>
     <Container>
       <div className=" h-full flex justify-evenly flex-wrap gap-y-6 " >   
-        { videos.map((video) => {
+        { storeVideos.map((video) => {
           const convertTime = useTimeConverterHook(video.createdAt)
             return(
               <div key={video._id}>
+
               <Link state={video.owner.username} className="cursor-pointer"  to={`/video-detail/${video._id}/description`}  >
                 <div className="  bg-gray-300 w-[350px] h-[230px] rounded  shadow-lg hover:shadow-xl transition-shadow duration-300">
                   <div className=" h-full rounded overflow-hidden shadow-lg">
@@ -51,19 +54,19 @@ function Home() {
                 </div>
                 </div>
               </Link>
-              </div>
+            </div>
             )
         })}
         </div>
         </Container>
+        {error && <p>{error}</p>}
     </>
-  )
-  else if(videos && videos.length === 0){
-   return <p>Video not found</p>
-  }
-  else{
-    return <h1>loading...</h1>
-  } 
+  ) 
+  :
+   (<h1>loading...</h1>)
+
+ 
+  
 }
 
 export default Home

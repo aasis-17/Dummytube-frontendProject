@@ -3,32 +3,25 @@ import InputField from './InputField'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faSearch } from '@fortawesome/free-solid-svg-icons'
 import { useForm } from 'react-hook-form'
-import videoService from '../services/videosService'
 import { useDispatch } from 'react-redux'
-import { useNavigate } from 'react-router-dom'
-import { getVideoData} from "../store/videoSlice"
+import { getSearchTitle, getVideoData} from "../store/videoSlice"
+import { useDebounce } from '../utils'
 
 function Search() {
     const {register, handleSubmit} = useForm()
     const dispatch = useDispatch()
-    const navigate = useNavigate()
 
-    const searching = async (formData) => {
-      try{
-        const res = await videoService.getAllVideos(formData.query)
-        console.log(formData)
-        dispatch(getVideoData(res.data.allVideos))
-        navigate("/")
+     const dispatchTitle = (formData) => (
+        dispatch(getSearchTitle(formData.query))
+      )
+       
+    const searching = useDebounce(dispatchTitle, 1000)
+
     
-      }catch(error){
-        console.log(error?.message)
-      }
-   
 
-    }
   return (
     <div>
-        <form className='flex' onSubmit={handleSubmit(searching)}>
+        <form className='flex' onChange={handleSubmit(searching)}>
         <InputField 
             type="text"
             placeholder = "Search"

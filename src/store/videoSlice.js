@@ -1,18 +1,55 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-    data : null
+    allVideos : null,
+    searchTitle : "",
+    videoDetail : {
+        detail : null,
+        userLikedVideo : false,
+    }, 
+
+    channelProfile : {
+        userSubscribedChannel : false,
+        channelOwnerProfile : null,
+        channelVideos : null
+    }
+   
 }
 
 const videoSlice = createSlice({
     name : "video",
     initialState,
     reducers : {
+
         getVideoData : (state, action) =>{
-            state.data = action.payload
+            state.allVideos = action.payload
+        },
+
+        getSearchTitle : (state, action) => {
+            state.searchTitle = action.payload
+        },
+
+        setVideoDetails : (state, action) => {
+           state.videoDetail = {
+            ...state.videoDetail,
+            ...action.payload
+           }
+            
+        },
+
+        setChannelProfile : (state,action) => {
+            state.channelProfile =  {
+                ...state.channelProfile,
+                ...action.payload
+            }
         }
     }
 })
 
-export const {getVideoData} = videoSlice.actions 
+export const {
+    getVideoData,
+    getSearchTitle,
+    setChannelProfile,
+    setVideoDetails} = videoSlice.actions 
+
 export default videoSlice.reducer

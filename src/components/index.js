@@ -3,7 +3,7 @@ import Footer from "./footer/Footer.jsx";
 import Logo from "./Logo.jsx";
 import LogoutBtn from "./header/LogoutBtn.jsx";
 import InputField from "./InputField.jsx";
-import PageProtector from "./authLayout.jsx";
+import PageProtector from "./AuthLayout.jsx";
 import SignUp from "./SignUp.jsx";
 import Login from "./Login.jsx";
 import SideNav from "./header/SideNav.jsx";
@@ -12,6 +12,7 @@ import Home from "./Home.jsx";
 import Container from "./container/Container.jsx";
 import VideoDetail from "./videoDetail/VideoDetail.jsx";
 import ChannelProfile from "./ChannelProfile.jsx";
+import Navigation from "./Navigation.jsx";
 
 export {
     Header,
@@ -27,5 +28,7 @@ export {
     Home,
     Container,
     VideoDetail,
-    ChannelProfile
+    ChannelProfile,
+    Navigation
+
 }

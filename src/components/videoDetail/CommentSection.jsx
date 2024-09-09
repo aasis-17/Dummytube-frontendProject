@@ -9,18 +9,18 @@ import { faPaperPlane } from '@fortawesome/free-regular-svg-icons'
 import { useSelector } from 'react-redux'
 import useTimeConverterHook from '../../utils/usetimeConverterHook'
 import likeService from '../../services/likeServices'
-//import { useParams } from 'react-router-dom'
+import { useDebounce } from "../../utils"
 
 function CommentSection() {
   const [ loading, setLoading] = useState(true)
   const [error, setError] = useState("")
 
-  const {videoId} = useOutletContext()
+  const loginUser = useSelector((state) => state.authReducer.userData)
+  const videoId = useSelector(state => state.videoReducer.videoDetail.detail._id)
 
   const [allComments, setAllComments] = useState([])
   const [commentLike, setCommentLike] = useState()
 
-  const loginUser = useSelector((state) => state.authReducer.userData)
 
   const {register, handleSubmit, reset} =useForm()
   const [resetForm, setResetForm] = useState(false)
@@ -43,6 +43,8 @@ function CommentSection() {
       console.log(error.message)
     }
   }
+
+  const debounceToggleCommentLike = useDebounce(toggleCommentLike, 300)
 
 
   useEffect(() => {
@@ -90,7 +92,7 @@ function CommentSection() {
     {/* Action Buttons */}
     <div className="flex space-x-4 text-sm text-gray-500">
       {/* Like Button */}
-      <button onClick={() => toggleCommentLike(comment._id)}  className="flex items-center hover:text-blue-500">
+      <button onClick={() => debounceToggleCommentLike(comment._id)}  className="flex items-center hover:text-blue-500">
         
       <FontAwesomeIcon icon={faHeart} style={{color: comment.isLiked ? "#db0f4c" : ""}} />
       <span>{comment.commentLikeCount}</span>

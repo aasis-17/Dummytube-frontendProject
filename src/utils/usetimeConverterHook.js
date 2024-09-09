@@ -1,8 +1,5 @@
-import { useEffect, useState } from "react"
 
 export default function useTimeConverterHook  (createdAt) {
-    //const [timeValue, setTimeValue] = useState("")
-    console.log(createdAt)
   
 
     const date = new Date
@@ -13,14 +10,14 @@ export default function useTimeConverterHook  (createdAt) {
         timeNow : date.getUTCHours(),
         minuteNow : date.getUTCMinutes()
     }
-    console.log(recentTime)
+
 
     const arr = createdAt.split("T")
     
     const dateArr = arr[0].split("-")
     const timeArr = arr[1].split(":")
 
-    console.log(dateArr, timeArr)
+    
 
     const yearDifference = parseInt(recentTime.yearNow - dateArr[0])
 
@@ -33,10 +30,6 @@ export default function useTimeConverterHook  (createdAt) {
     const minuteDifference = parseInt(recentTime.minuteNow - timeArr[1])
 
     let timeString="";
-
-    // useEffect(() => {
-    //     setTimeValue(timeString)
-    // },[timeString])
 
     if(yearDifference !== 0){
         timeString = `${yearDifference} year ago`
