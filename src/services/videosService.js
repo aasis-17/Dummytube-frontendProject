@@ -27,11 +27,11 @@ class videoServices {
 
     async uploadVideo (formData) {
         try {
-            const response = await axios({
+            const response = await fetch("/api/v1/video/upload-video",{
                 method : "post",
-                url : "/api/v1/video/upload-video",
-                data : formData
+                data : JSON.stringify(formData)
             })
+            return response.ok && response
         } catch (error) {
             console.log(error?.message)
         }
@@ -39,7 +39,7 @@ class videoServices {
 
     async deleteVideo (videoId){
         try{
-            const response = await axios(`/api/v1/video/delete-video/${videoId}`)
+            const response = await fetch(`/api/v1/video/deleteVideo/${videoId}`)
             return response.ok && response
         }catch(error){
             console.log(error?.message)

@@ -35,7 +35,7 @@ function LeftSection() {
 
           <Navigation 
            navItems={navItems}
-           className={ ({isActive}) => (isActive ? "bg-gray-300 " : "") + "px-1 text-lg font-bold hover:bg-gray-300 rounded-md transition-all delay-100 "}
+           classNameNav={ ({isActive}) => (isActive ? "bg-gray-300 " : "") + "px-1 text-lg font-bold hover:bg-gray-300 rounded-md transition-all delay-100 "}
             />
             
         </nav>

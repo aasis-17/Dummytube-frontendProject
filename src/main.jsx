@@ -14,6 +14,8 @@ import PlaylistSection from './components/videoDetail/PlaylistSection.jsx'
 import Playlist from './components/Playlist.jsx'
 import ProfileVideos from './components/ProfileVideos.jsx'
 import ProfileLikedVideos from './components/ProfileLikedVideos.jsx'
+import YourVideos from './components/YourVideos.jsx'
+import UploadVideo from './components/UploadVideo.jsx'
 
 
 
@@ -25,6 +27,18 @@ const router  = createBrowserRouter([
       {
         path : "/",
         element : <Home />
+      },{
+        path : "/likedVideos",
+        element : <ProfileLikedVideos />
+
+      },
+      {
+        path : "/yourVideos",
+        element : <YourVideos />
+      },
+      {
+        path : "/uploadVideo",
+        element : <UploadVideo />
       },
       {
         path : "/playlist/:channelId",

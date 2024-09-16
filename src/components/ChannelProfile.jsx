@@ -5,30 +5,37 @@ import videoService from '../services/videosService'
 import Navigation from './Navigation'
 import { Outlet, useParams } from 'react-router-dom'
 import { setChannelProfile } from '../store/videoSlice'
+import likeService from '../services/likeServices'
 
 
 function ChannelProfile() {
-    const userData = useSelector((state) => state.authReducer.userData)
+    const loginUserId = useSelector((state) => state.authReducer.userData?._id)
     const channelProfile = useSelector(state => state.videoReducer.channelProfile)
+    console.log(channelProfile)
     const [loading, setLoading] = useState(true)
 
     const params = useParams()
     const channelId = params.channelId
+
+    console.log(channelId === loginUserId)
 
     const dispatch = useDispatch()
 
     const navItems = [
       {
         name : "Videos",
-        slug : `/channel-profile/${channelId}/videos`
+        slug : `/channel-profile/${channelId}/videos`,
+        status : true
       },
       {
         name : "Playlist",
-        slug : `/channel-profile/${channelId}/playlist`
+        slug : `/channel-profile/${channelId}/playlist`,
+        status : true
       },
       {
         name : "Liked Videos",
-        slug : `/channel-profile/${channelId}/likedVideos`
+        slug : `/channel-profile/${channelId}/likedVideos`,
+        status : channelId === loginUserId
       }
     ]
 
@@ -36,14 +43,16 @@ function ChannelProfile() {
         try{
             const channelProfile = userService.getUserProfile(channelId)
             const userVideos = videoService.getAllVideos("",channelId)
+            const likedVideos = likeService.getAllLikedVideos()
 
-            Promise.all([channelProfile, userVideos])
+            Promise.allSettled([channelProfile, userVideos, likedVideos])
             .then((data) => (
-                console.log(data),
+                console.log(data[2]),
                 dispatch(setChannelProfile({
-                  channelOwnerProfile : data[0].data,
-                  userSubscribedChannel : data[0].data.isSubscribed,
-                  channelVideos : data[1].data
+                  channelOwnerProfile : data[0].value.data,
+                  userSubscribedChannel : data[0].value.data.isSubscribed,
+                  channelVideos : data[1].value.data,
+                  channelLikedVideos : data[2].value ? data[2].value.data : null
                 }))
             ))
             .catch((error) => console.log(error?.message))
@@ -80,22 +89,12 @@ function ChannelProfile() {
         <div className='flex gap-16 mt-14'>
         <Navigation
           navItems={navItems}
-          className={({isActive}) => (isActive ? "text-2xl font-semibold mb-4 border-b-4 border-solid  border-black" : ""  ) + "text-2xl font-semibold mb-4"  }/>
+          className={ " text-2xl font-semibold mb-4 list-none"}
+          classNameNav={({isActive}) => (isActive ? "border-b-4 border-gray-500 " :"") }/>
         </div>
 
       <Outlet />
-{/*         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 ">
-          {channelProfile.channelVideos.allVideos.length !== 0 ?  channelProfile.channelVideos.allVideos.map((video) => (
-            <div key={video._id} className="bg-white rounded-lg shadow-md overflow-hidden">
-              <img src={video.thumnail} alt={video.title} className="w-full h-48 object-cover" />
-              <div className="p-4">
-                <h4 className="text-lg font-semibold">{video.title}</h4>
-              </div>
-            </div>
-          )) : (<p>No video uploaded!!</p>)
-        }
-        </div> */}
+
 
       </div>
     </div>

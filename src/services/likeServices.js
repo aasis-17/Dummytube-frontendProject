@@ -18,6 +18,17 @@ class likeServices {
         }
        
     }
+
+    async getAllLikedVideos () {
+        try {
+            const response = await fetch('/api/v1/like/get-allLiked-videos')
+            return response.ok && response.json()
+        } catch (error) {
+            console.log(error?.message)
+            
+        }
+    }
+
 }
 
 const likeService = new likeServices()

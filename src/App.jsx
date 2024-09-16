@@ -4,10 +4,13 @@ import {Outlet} from "react-router-dom"
 import { useDispatch } from 'react-redux'
 import authService from './services/authServices.js'
 import { login, logout } from './store/authSlice.js'
+import {QueryClient, QueryClientProvider} from "react-query"
 
 function App() {
   const [loader, setLoader] = useState(true)
   const dispatch = useDispatch()
+
+  const queryClient = new QueryClient()
 
   useEffect(() => {
     authService.getCurrentUser()
@@ -26,6 +29,7 @@ function App() {
 
   if (!loader){
     return (
+    <QueryClientProvider client={queryClient}>
       <div className='overflow-hidden mx-auto h-screen max-w-screen-2xl bg-gray-700 relative '>
         <Header />
           <main>
@@ -33,6 +37,7 @@ function App() {
           </main>
         <Footer />
       </div>
+    </QueryClientProvider>
     
     )
   }else{

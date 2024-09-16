@@ -31,38 +31,38 @@ function SideNav({sidebar}) {
     const navItems = [
         {
             name : "Your channel",
-            slug : `/channel-profile/${loginUserId}`,
-            keep : true,
+            slug : `/channel-profile/${loginUserId}/videos`,
+            status : true,
             logo :faCircleUser
         },
         {
             name : "History",
             slug : "",
-            keep :  true,
+            status :  true,
             logo : faClockRotateLeft
         },
         {
             name : "Your videos",
-            slug : "/create-account",
-            keep : authStatus,
+            slug : "/yourVideos",
+            status : authStatus,
             logo : faCirclePlay
         },
         {
             name : "Playlsit",
             slug : `/playlist/${loginUserId}`,
-            keep : authStatus,
+            status : authStatus,
             logo : faListUl,
         },
         {
             name : "Liked videos",
-            slug : "",
-            keep : authStatus,
+            slug : "/likedVideos",
+            status : authStatus,
             logo : faHeart
         },
         {
             name : "Setting",
             slug : "/setting",
-            keep : true,
+            status : true,
             logo : faScrewdriverWrench 
 
         }    
@@ -85,7 +85,7 @@ function SideNav({sidebar}) {
                 />
 
                 {/* {navItems.map((item) => {
-                    if(item.keep){
+                    if(item.status){
                        return (
                         <li className="block my-3 py-3.5 px-3  rounded transition duration-200 hover:bg-blue-600 hover:text-white" key={item.name}>
                             <Link  to={item.slug}>

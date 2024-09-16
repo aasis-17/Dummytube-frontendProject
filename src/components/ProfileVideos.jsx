@@ -3,7 +3,8 @@ import { useSelector } from 'react-redux'
 
 function ProfileVideos() {
     const channelProfile = useSelector(state => state.videoReducer.channelProfile)
-  return (
+ 
+  return  (
     <div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 ">
           {channelProfile.channelVideos.allVideos.length !== 0 ?  channelProfile.channelVideos.allVideos.map((video) => (
@@ -17,7 +18,7 @@ function ProfileVideos() {
         }
         </div>
     </div>
-  )
+  )  
 }
 
 export default ProfileVideos

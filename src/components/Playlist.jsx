@@ -41,11 +41,11 @@ function Playlist() {
     <div> 
         <div className="bg-gray-100 p-6">
             <div className="container mx-auto">
-                <div className='flex justify-between relative'>
+                <div className='flex justify-between '>
                     <h1 className="text-3xl font-bold mb-4">Video Playlists</h1>
-                    <h1 onClick={() => setCreateBtn(prev => !prev)} className="text-2xl font-medium mb-4 cursor-pointer hover:border-b-4">+ Create </h1>
+                    <h1 onClick={() => setCreateBtn(prev => !prev)} className=" text-2xl font-medium mb-4 cursor-pointer hover:border-b-4">+ Create </h1>
                     {toggleCreateBtn &&
-                    (<form className='rounded-md text-xl p-5 w-96  h-30 absolute top-10 right-0 bg-gray-300' onSubmit={ handleSubmit(debounceHandleForm)}> 
+                    (<form className='rounded-md text-xl p-5 max-w-96  h-30 absolute top-40 right-0 bg-gray-300' onSubmit={ handleSubmit(debounceHandleForm)}> 
                         <InputField
                         label = "Name"
                         type = "text"

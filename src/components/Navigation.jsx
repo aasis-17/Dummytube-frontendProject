@@ -2,28 +2,33 @@ import React from 'react'
 import { NavLink } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
-function Navigation({className, navItems, logoClassName}) {
-
+function Navigation({navItems,className,classNameNav,  logoClassName}) {
+  console.log(navItems)
   return (
     <>
          {navItems.map((item) => {
-                    if(item.length > 2){ 
+                  
+                    if(item.hasOwnProperty("status") ){ 
 
                        return item.status && (
-                        <li className={className} key={item.name}>
-                            <Link  to={item.slug}>
-                            <FontAwesomeIcon className={logoClassName} icon={item.logo}/>
+                        <li className={className } key={item.name}>
+                            <NavLink to={item.slug} className={classNameNav}>
+                            {item.logo &&  
+                            <FontAwesomeIcon className={logoClassName} icon={item.logo}/> }
 
                              {item.name} 
                              
-                            </Link>
+                            </NavLink>
                             </li>
                             
                         )
                     }else {
                         return (
-                         <NavLink key={item.name}  to={item.slug} className={className}>{item.name}</NavLink>
+                          
+                         <NavLink key={item.name}  to={item.slug} className={classNameNav}>{item.name}</NavLink>
+                      
                         )
+
                     }
                     
 })}

@@ -98,7 +98,7 @@ function VideoSection() {
         <div className='h-10 px-4 py-2'>{videoDetail.detail.title}</div>
         <div className='flex items-center justify-between px-2'>
         <div className='flex gap-4 items-center w-[50%] justify-around'>
-          <div onClick={() => navigate(`/channel-profile/${videoDetail.detail.owner}`)} className='flex cursor-pointer w-full gap-12'>
+          <div onClick={() => navigate(`/channel-profile/${videoDetail.detail.owner}/videos`)} className='flex cursor-pointer w-full gap-12'>
             <div className='w-12 h-12 rounded-full overflow-hidden'>
                 <img src={channelProfile.channelOwnerProfile.avatar} className='w-full h-full'/>
             </div>

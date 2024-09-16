@@ -3,6 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState = {
     allVideos : null,
     searchTitle : "",
+    
     videoDetail : {
         detail : null,
         userLikedVideo : false,
@@ -11,7 +12,8 @@ const initialState = {
     channelProfile : {
         userSubscribedChannel : false,
         channelOwnerProfile : null,
-        channelVideos : null
+        channelVideos : null,
+        channelLikedVideos : null
     }
    
 }
