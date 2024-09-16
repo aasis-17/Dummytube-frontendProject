@@ -25,6 +25,22 @@ const router  = createBrowserRouter([
       {
         path : "/",
         element : <Home />
+      },{
+        path: "/setting",
+        element : <Setting/>,
+        children :[{
+          path : "account",
+          element : < AccountSetting />
+        },{
+          path :"changePassword",
+          element : <ChangePassword/>
+        },{
+          path:"dashboard",
+          element : <Dashboard/>
+        },{
+          path : "DeactivateAccount",
+          element : <DeactivateAccount/>
+        }]
       },
       {
         path : "/playlist/:channelId",
