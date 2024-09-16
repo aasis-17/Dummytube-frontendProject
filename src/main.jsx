@@ -27,18 +27,6 @@ const router  = createBrowserRouter([
       {
         path : "/",
         element : <Home />
-      },{
-        path : "/likedVideos",
-        element : <ProfileLikedVideos />
-
-      },
-      {
-        path : "/yourVideos",
-        element : <YourVideos />
-      },
-      {
-        path : "/uploadVideo",
-        element : <UploadVideo />
       },
       {
         path : "/playlist/:channelId",
