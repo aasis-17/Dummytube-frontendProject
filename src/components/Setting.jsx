@@ -32,23 +32,7 @@ const Settings = () => {
 
       {/* Right Content Section */}
       <div className="flex-1 p-6">
-        <h1 className="text-2xl font-semibold mb-4">Settings</h1>
-        <div id="account-info">
-          <h2 className="text-xl font-medium mb-2">Account Information</h2>
-          {/* Content for Account Information */}
-        </div>
-        <div id="change-password" className="mt-6">
-          <h2 className="text-xl font-medium mb-2">Change Password</h2>
-          {/* Content for Change Password */}
-        </div>
-        <div id="dashboard" className="mt-6">
-          <h2 className="text-xl font-medium mb-2">Dashboard</h2>
-          {/* Content for Dashboard */} nii
-        </div>
-        <div id="delete-channel" className="mt-6">
-          <h2 className="text-xl font-medium mb-2">Delete Channel</h2>
-          {/* Content for Delete Channel */}
-        </div>
+        <Outlet/>
       </div>
     </div>
   );
