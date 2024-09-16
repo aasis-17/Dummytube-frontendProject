@@ -8,22 +8,22 @@ const Settings = () => {
       <nav className="w-64 bg-gray-800 text-white min-h-screen p-4">
         <ul className="space-y-2">
           <li>
-            <Link to={} className="block p-2 rounded hover:bg-gray-700">
+            <Link to={"/setting/accountSetting"} className="block p-2 rounded hover:bg-gray-700">
               Account Information
             </Link>
           </li>
           <li>
-            <Link to="#change-password" className="block p-2 rounded hover:bg-gray-700">
+            <Link to={"/setting/changepassword"} className="block p-2 rounded hover:bg-gray-700">
               Change Password
             </Link>
           </li>
           <li>
-            <Link to="#dashboard" className="block p-2 rounded hover:bg-gray-700">
+            <Link to={"/setting/dashboard"} className="block p-2 rounded hover:bg-gray-700">
               Dashboard
             </Link>
           </li>
           <li>
-            <Link to="#delete-channel" className="block p-2 rounded hover:bg-gray-700">
+            <Link to={"/setting/deactivateAccount"} className="block p-2 rounded hover:bg-gray-700">
               Deactivate Channel
             </Link>
           </li>
