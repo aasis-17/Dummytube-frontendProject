@@ -31,7 +31,7 @@ function Home() {
     <>
     <Container>
       <div className=" h-full flex justify-evenly flex-wrap gap-y-6 " >   
-        { storeVideos.map((video) => {
+        { storeVideos?.map((video) => {
           const convertTime = useTimeConverterHook(video.createdAt)
             return(
               <div key={video._id}>

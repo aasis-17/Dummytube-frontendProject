@@ -1,5 +1,7 @@
 // src/components/Settings.jsx
 import React from 'react';
+import { Link } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
 
 const Settings = () => {
   return (
@@ -13,7 +15,7 @@ const Settings = () => {
             </Link>
           </li>
           <li>
-            <Link to={"/setting/changepassword"} className="block p-2 rounded hover:bg-gray-700">
+            <Link to={"/setting/changePassword"} className="block p-2 rounded hover:bg-gray-700">
               Change Password
             </Link>
           </li>
@@ -31,7 +33,7 @@ const Settings = () => {
       </nav>
 
       {/* Right Content Section */}
-      <div className="flex-1 p-6">
+      <div className="flex-1 p-6 bg-gray-400">
         <Outlet/>
       </div>
     </div>

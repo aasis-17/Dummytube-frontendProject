@@ -8,8 +8,9 @@ import { useNavigate } from 'react-router-dom'
 import authService from '../../services/authServices'
 import { logout as storeLogout } from '../../store/authSlice'
 import Navigation from '../Navigation'
+import { Link } from 'react-router-dom'
 
-function SideNav({sidebar}) {
+function SideNav({sidebar, setSidebar}) {
     console.log(sidebar)
     const authStatus = useSelector((state) => state.authReducer.status)
     const loginUserId = useSelector(state => state.authReducer.userData?._id)
@@ -77,18 +78,18 @@ function SideNav({sidebar}) {
     <div onClick={(e) => e.stopPropagation()}  className={`${sidebar? "" : "-translate-x-full"} w-[300px] h-[500px] bg-gray-700   bg-opacity-95 sticky  transition delay-100  `}>
         <nav className=' flex flex-col gap-7 text-xl'>
             <ul className='flex-1 px-5' >
-
+{/* 
                 <Navigation
                     navItems={navItems}
                     logoClassName={'h-6 pr-7 '}
                     className={"block my-3 py-3.5 px-3  rounded transition duration-200 hover:bg-blue-600 hover:text-white"} 
-                />
+                /> */}
 
-                {/* {navItems.map((item) => {
+                {navItems.map((item) => {
                     if(item.status){
                        return (
                         <li className="block my-3 py-3.5 px-3  rounded transition duration-200 hover:bg-blue-600 hover:text-white" key={item.name}>
-                            <Link  to={item.slug}>
+                            <Link  onClick={() => setSidebar(false)} to={item.slug}>
                             <FontAwesomeIcon className='h-6 pr-7 ' icon={item.logo}/>
 
                              {item.name} 
@@ -99,7 +100,7 @@ function SideNav({sidebar}) {
                         )
                     }
                     
-})} */}
+})}
                 <li onClick={logout} className="block my-3 py-3.5 px-3  rounded transition duration-200 hover:bg-blue-600 hover:text-white" key={logOutBtn.name}>
                             <FontAwesomeIcon className='h-6 pr-7 ' icon={logOutBtn.logo}/>
                              {logOutBtn.name}  

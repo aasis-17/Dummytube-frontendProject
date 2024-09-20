@@ -16,6 +16,8 @@ import ProfileVideos from './components/ProfileVideos.jsx'
 import ProfileLikedVideos from './components/ProfileLikedVideos.jsx'
 import YourVideos from './components/YourVideos.jsx'
 import UploadVideo from './components/UploadVideo.jsx'
+import Settings from './components/Settings/Setting.jsx'
+import AccountInfo from './components/Settings/AccountSetting.jsx'
 
 
 
@@ -27,6 +29,28 @@ const router  = createBrowserRouter([
       {
         path : "/",
         element : <Home />
+      },
+      {
+        path : "/setting",
+        element : <Settings />,
+        children : [
+          {
+            path : "accountSetting",
+            element : <AccountInfo />
+          },
+          {
+            path : "changePassword",
+           // element : <ChangePassword />
+          },
+          {
+            path : "dashboard",
+           // element : <Dashboard />
+          },
+          {
+            path : "deactivateAccount",
+           // element : <DeactivateAccount />
+          }
+        ]
       },
       {
         path : "/playlist/:channelId",

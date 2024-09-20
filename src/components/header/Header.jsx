@@ -21,7 +21,7 @@ console.log(authStatus)
 
   return (
     
-            <header className="bg-gray-900 text-white shadow-md sticky h-20"> 
+        <header className="bg-gray-900 text-white shadow-md sticky h-20"> 
             
             <nav className=' mx-auto px-4 py-6 flex items-center justify-between'>
                 {!authStatus ? (
@@ -60,10 +60,7 @@ console.log(authStatus)
                  
                  
                 {
-                    <SideNav  sidebar = {sidebar}/>
-                // (<div onClick={() =>  setSidebarWidth("-translate-x-full")} className='overflow-hidden w-full'>
-                //     <SideNav  sidebarWidth = {sidebarWidth} setSidebarWidth = {setSidebarWidth}/>
-                // </div>)
+                    <SideNav setSidebar={setSidebar}  sidebar = {sidebar}/>
                   
                 }
             </header>

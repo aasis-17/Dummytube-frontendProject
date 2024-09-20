@@ -12,7 +12,7 @@ function Navigation({navItems,className,classNameNav,  logoClassName}) {
 
                        return item.status && (
                         <li className={className } key={item.name}>
-                            <NavLink to={item.slug} className={classNameNav}>
+                            <NavLink  to={item.slug} className={classNameNav}>
                             {item.logo &&  
                             <FontAwesomeIcon className={logoClassName} icon={item.logo}/> }
 
