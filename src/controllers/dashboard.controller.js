@@ -53,7 +53,7 @@ const getChannelStats = asyncHandler(async (req, res) => {
         }
     ])
 
-    return res.status(200).json ( new ApiResponse(200, {totalSubscribers, totalLikes : totalLikes[0].totalLikes, totalVideos}, "total likes channel obtained!"))
+    return res.status(200).json ( new ApiResponse(200, {totalSubscribers, totalLikes, totalVideos}, "total likes channel obtained!"))
 })
 
 const getChannelVideos = asyncHandler(async (req, res) => {

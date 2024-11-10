@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { changeOldPassword, getCurrentUser, getUserChannelProfile, getWatchHistory, loginUser, logoutUser, refreshAccessToken, registerUser, updateAccountDetails, updateAvatar, updateCoverImage } from "../controllers/user.controller.js";
+import { changeOldPassword, deactivateAccount, getCurrentUser, getUserChannelProfile, getWatchHistory, loginUser, logoutUser, refreshAccessToken, registerUser, updateAccountDetails, updateAvatar, updateCoverImage } from "../controllers/user.controller.js";
 import { upload } from "../middlewares/multer.middleware.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 
@@ -24,7 +24,7 @@ router.route("/login").post(loginUser)
 router.route("/logout").post( verifyJWT, logoutUser)
 
 //refresh accesstoken route
-router.route("/refreshed-accesstoken").post(verifyJWT, refreshAccessToken)
+router.route("/refreshed-accesstoken").post(refreshAccessToken)
 
 //password change
 router.route("/change-password").post(verifyJWT, changeOldPassword)
@@ -56,5 +56,7 @@ router.route("/channel-profile/:channelId").get( getUserChannelProfile)
 //get user watch history
 
 router.route("/watch-history").get(verifyJWT, getWatchHistory)
+
+router.route("/deactivate-account").delete(verifyJWT, deactivateAccount)
 
 export default router;

@@ -42,6 +42,14 @@ const videoSchema = new mongoose.Schema(
         isPublished : {
             type : Boolean,
             default : true
+        },
+        
+        videoPublic_id :{
+            type : String
+        },
+        
+        thumnailPublic_id : {
+            type : String
         }
     },{timestamps : true}
 )

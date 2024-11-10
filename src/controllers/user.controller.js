@@ -1,10 +1,18 @@
 import { asyncHandler } from "../utiles/asyncHandler.js"
 import { ApiError } from "../utiles/ApiErrors.js"
 import { User } from "../models/user.model.js"
-import { uploadOnCloudinary } from "../utiles/cloudinaryOrFileupload.js"
+import { Video } from "../models/video.model.js"
+import { Playlist } from "../models/playlist.model.js"
+import { Comment} from "../models/comment.model.js"
+import { Like } from "../models/like.model.js"
+import { Tweet } from "../models/tweet.model.js"
+import { Subscription } from "../models/subscription.model.js"
+import { deleteFileOnCloudinary, uploadOnCloudinary } from "../utiles/cloudinaryOrFileupload.js"
 import { ApiResponse } from "../utiles/ApiResponse.js"
 import jwt from "jsonwebtoken"
 import mongoose, { isValidObjectId } from "mongoose"
+
+
 
 
 const generateAccessAndRefreshToken = async(userId) =>{
@@ -77,7 +85,7 @@ const registerUser = asyncHandler( async (req, res) => {
          password,
          email,
          avatar : avatar.url,
-         coverImage : coverImage?.url || ""
+         coverImage : coverImage?.url || "",
      })
 
     // //check if user is created on database 
@@ -87,6 +95,11 @@ const registerUser = asyncHandler( async (req, res) => {
      if(!createdUser){
          throw new ApiError(500, "Something went wrong while registering user!!")
      }
+
+     createdUser.avatarPublic_id = avatar.public_id
+     createdUser.coverImagePublic_id = coverImage?.public_id || ""
+     await createdUser.save({validateBeforeSave : false})
+
     // //return response
     return res.status(201).json(
          new ApiResponse(200, createdUser, "User registered successfully!!")
@@ -99,8 +112,6 @@ const registerUser = asyncHandler( async (req, res) => {
 //login user
 
 const loginUser = asyncHandler(async (req, res) => {
-
-
 
     const {password, username, email} = req.body;
     console.log(req.body, password)
@@ -177,6 +188,7 @@ const loginUser = asyncHandler(async (req, res) => {
  })
 
  const refreshAccessToken = asyncHandler(async(req, res) => {
+
     const incomingRefreshToken = req.cookies?.refreshToken || req.body.refreshToken
 
     if(!incomingRefreshToken){
@@ -190,6 +202,8 @@ const loginUser = asyncHandler(async (req, res) => {
     if(!user){
         throw ApiError(400, "Invalid refreshtoken!!")
     }
+    //console.log(user.refreshToken)
+    console.log(incomingRefreshToken)
 
     if(incomingRefreshToken !== user.refreshToken){
         throw new ApiError(400, "Refreshtoken expired or used!!")
@@ -261,13 +275,15 @@ const loginUser = asyncHandler(async (req, res) => {
 
  const updateAvatar = asyncHandler(async(req, res) => {
 
+    const loginUser = await User.findById(req.user?._id)
+
     const avatarLocalPath = req.file?.path
-    console.log(req.file)
 
     if(!avatarLocalPath) {
         throw new ApiError(400, "Avatar file missing!!")
     }
 
+    await deleteFileOnCloudinary(loginUser.avatarPublic_id)
     const avatar = await uploadOnCloudinary(avatarLocalPath)
 
     if(!avatar.url){
@@ -277,7 +293,8 @@ const loginUser = asyncHandler(async (req, res) => {
     const user = await User.findByIdAndUpdate(req.user?._id,
         {
             $set : {
-                avatar : avatar.url
+                avatar : avatar.url,
+                avatarPublic_id : avatar.public_id
             }
         },
         {
@@ -294,13 +311,16 @@ const loginUser = asyncHandler(async (req, res) => {
 
 const updateCoverImage = asyncHandler(async(req, res) => {
 
-    const coverImageLocalPath = req.file?.avatar.path
+    const loginUser = await User.findById(req.user?._id)
+
+    const coverImageLocalPath = req.file?.path
     console.log(req.file)
 
     if(!coverImageLocalPath){
         throw new ApiError(400, "CoverImage file is missing!!")
     }
 
+    await deleteFileOnCloudinary(loginUser.coverImagePublic_id)
     const coverImage = await uploadOnCloudinary(coverImageLocalPath)
 
     if(!coverImage.url){
@@ -310,7 +330,8 @@ const updateCoverImage = asyncHandler(async(req, res) => {
     const user = await User.findByIdAndUpdate(req.user?._id,
         {
             $set : {
-                coverImage : coverImage.url
+                coverImage : coverImage.url,
+                coverImagePublic_id : coverImage.public_id
             }
         },
         {
@@ -463,6 +484,73 @@ const getWatchHistory = asyncHandler(async(req, res) => {
     .json(new ApiResponse(200, user[0].watchHistory,"watch history successfully fetched!!"))
 })
 
+    const deactivateAccount = asyncHandler(async (req, res) => {
+
+        const userId = req.user?._id
+
+        const userVideos = await Video.find({owner : userId})
+
+        console.log(userVideos)
+
+        const deleteFiles = async (video) => (
+            await deleteFileOnCloudinary(video.videoPublic_id),
+            await deleteFileOnCloudinary(video.thumnailPublic_id)
+        )
+
+        userVideos.map((video) => {
+            deleteFiles(video)
+            console.log("deleted files!!!")
+    })
+    
+        
+        // const deletedVideosonCloudinary = await deleteFileOnCloudinary(videoPublicIds.videoPublicId)
+        // const deletedVideosThumnailonCloudinary = await deleteFileOnCloudinary(videoPublicIds.thumnailPublicId)
+        // console.log(deletedVideosonCloudinary)
+        // console.log(deletedVideosThumnailonCloudinary)
+
+        // if(!deletedVideosonCloudinary || !deletedVideosThumnailonCloudinary)
+        //      throw new ApiError("error while deleting videos from cloudinary!!")
+
+        const deletedVideos = await Video.deleteMany({owner : userId });
+        console.log(deletedVideos)
+
+        const deleteComments = await Comment.deleteMany({owner : userId})
+
+        const deletePlaylist = await Playlist.deleteMany({owner : userId})
+
+        const deleteLikes = await Like.deleteMany({owner : userId})
+
+        const deleteChannelSubscribedTo = await Subscription.deleteMany({subscriber : userId}) 
+        const deleteChannelSubscriber = await Subscription.deleteMany({channel : userId})
+        
+        const deleteTweet = await Tweet.deleteMany({owner : userId})
+
+        if(!deleteComments || !deleteLikes || !deletePlaylist || !deleteChannelSubscriber || !deleteChannelSubscribedTo || !deleteTweet)
+            throw new ApiError("error while deleting documents!!")
+
+        const user = await User.findById(userId)
+
+         await deleteFileOnCloudinary(user.coverImagePublic_id)
+         await deleteFileOnCloudinary(user.avatarPublic_id)
+
+        const deleteUser = await User.findByIdAndDelete(userId)
+
+        if(!deleteUser){
+            throw new ApiError(400, "unable to deactivate!!")
+        }
+
+        const options = {
+            httpOnly : true,
+            secure : true
+        } 
+    
+
+        return res.status(200)
+        .clearCookie("accessToken", options)
+        .clearCookie("refreshToken", options)
+        .json( new ApiResponse(200, "User deactivated successfully!!"))
+    })
+
 export {
     registerUser,
     loginUser,
@@ -474,5 +562,6 @@ export {
     updateCoverImage,
     getCurrentUser,
     getUserChannelProfile,
-    getWatchHistory
+    getWatchHistory, 
+    deactivateAccount
 }

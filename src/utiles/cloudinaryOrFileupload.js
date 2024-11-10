@@ -17,9 +17,9 @@ import fs from "fs"
                 resource_type : "auto"
             })
             console.log("file has been uploded on cloudinary")
+            console.log(response.public_id)
 
-            fs.unlinkSync(localFilePath)
-            
+            fs.unlinkSync(localFilePath)   
             return response;
         }catch (error){
 
@@ -30,12 +30,20 @@ import fs from "fs"
 
     const deleteFileOnCloudinary = async (localFilePath)=>{
         try {
-        const response = await cloudinary.uploader
-        .destroy(localFilePath, {
-            resource_type: 'video'
-        })
-         console.log("file has been deleted successfully!!")
-         return response;
+            console.log(typeof(localFilePath))
+            if(typeof(localFilePath) === "string"){
+                const response = await cloudinary.uploader
+                .destroy(localFilePath, {
+                    resource_type: 'image'
+                })
+                console.log("file has been deleted successfully!!")
+                return response;
+            }else if(typeof(localFilePath) === "object"){
+                const response = await cloudinary.api
+                .delete_resources(localFilePath, {resource_type : "video"})
+                console.log("file has been deleted successfully!!")
+                return response;
+            }
 
         } catch (error) {
             console.log("problem while deleting file", error)

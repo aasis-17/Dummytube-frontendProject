@@ -6,19 +6,15 @@ import { asyncHandler } from "../utiles/asyncHandler.js"
 import { deleteFileOnCloudinary, uploadOnCloudinary } from "../utiles/cloudinaryOrFileupload.js"
 import mongoose, { isValidObjectId } from "mongoose"
 
-
-
-
-
 const getAllVideos = asyncHandler(async (req, res) => {
     const { page = 1, limit = 10, query, sortBy= "createdAt", sortType="dec", userId } = req.query
     //TODO: get all videos based on query, sort, pagination
-    console.log(req.query)
+    
     const filter = {}
     const sort = {}
 
     if(userId){
-        filter.owner = mongoose.Types.ObjectId(userId)
+        filter.owner = new mongoose.Types.ObjectId(userId)
     }
 
     if(query){
@@ -89,6 +85,8 @@ const publishAVideo = asyncHandler(async (req, res) => {
     const { title, description} = req.body
     // TODO: get video, upload to cloudinary, create video
 
+    console.log(req.files)
+
     if(!title && !description){
         throw new ApiError(400, "title or description missing!!")
     }
@@ -107,28 +105,35 @@ const publishAVideo = asyncHandler(async (req, res) => {
     }
 
     const videoFile = await uploadOnCloudinary(videoLocalPath)
-    const thumNail = await uploadOnCloudinary(videoThumnailPath)
-    
+    const videoThumnail = await uploadOnCloudinary(videoThumnailPath)
 
-    const userVideo = await Video.create(
+    console.log(videoFile)
+
+    const createVideo = await Video.create(
         {
             videoFile : videoFile.url,
-            thumnail : thumNail.url,
+            thumnail : videoThumnail.url,
             owner : user._id,
             title : title,
             description : description,
-            duration : video.duration
+            duration : videoFile.duration
         }
     )
 
-    const video = await Video.findById(userVideo._id)
+    const videoPublished = await Video.findById(createVideo._id)
 
     if(!videoPublished){
         throw new ApiError(500, "Video has not been published!!")
     }
 
+    videoPublished.videoPublic_id = videoFile.public_id
+    videoPublished.thumnailPublic_id = videoThumnail.public_id
+    await videoPublished.save({validateBeforeSave : false})
+
+    console.log(videoPublished)
+
     return res.status(200)
-    .json( new ApiResponse(200, video, "Video uploaded successfully!!"))
+    .json( new ApiResponse(200, videoPublished, "Video uploaded successfully!!"))
 
 })
 
@@ -213,39 +218,59 @@ const updateVideo = asyncHandler(async (req, res) => {
     }
 
     const {title, description} = req.body
+    console.log(req.params)
+    console.log(title, description)
 
     if(title?.trim() === "" && description?.trim() === ""){
         throw new ApiError(400, "title and description is required!!")
     }
 
-    const updateThumnailLocalPath = req.files?.thumnail[0]?.path
-
-    if(!updateThumnailLocalPath){
-        throw new ApiError(400, "thumnail is missing!!")
-    }
-
     const video = await Video.findById(videoId)
 
-    const existingThumnailPublicId = video.thumnail.slice(60, 80) // NOTE : We need public_id of existing file in order to delete existing file on cloudinary!
+    const updateThumnailLocalPath = req.file?.path
+    console.log(video)
+    console.log(updateThumnailLocalPath)
 
-    const response = await deleteFileOnCloudinary(existingThumnailPublicId)
+    let updatedVideo;
 
-    const updatedThumnail = await uploadOnCloudinary(thumnailLocalPath) 
-
-    const updatedVideo = await Video.findByIdAndUpdate(videoId,
-        {
-            $set : {
-                title : title,
-                description : description,
-                thumnail : updatedThumnail.url
+    if(!updateThumnailLocalPath){
+          updatedVideo = await Video.findByIdAndUpdate(videoId,
+            {
+                $set : {
+                    title : title,
+                    description : description,
+                    thumnail : video.thumnail,
+                    thumnailPublic_id : video.thumnailPublic_id
+                }
+            },{
+                new : true
             }
-        },{
-            new : true
-        }
-    )
+        )
+    }else{
+        const response = await deleteFileOnCloudinary(video.thumnailPublic_id)
+
+        const updatedThumnail = await uploadOnCloudinary(updateThumnailLocalPath) 
+    
+         updatedVideo = await Video.findByIdAndUpdate(videoId,
+            {
+                $set : {
+                    title : title,
+                    description : description,
+                    thumnail : updatedThumnail.url,
+                    thumnailPublic_id : updatedThumnail.public_id
+                }
+            },{
+                new : true
+            }
+        )
+    }
+
+    //const existingThumnailPublicId = video.thumnail.slice(60, 80) // NOTE : We need public_id of existing file in order to delete existing file on cloudinary!
+    console.log(updatedVideo)
+ 
 
 
-    return res.status(200).json( new ApiResponse(200, {updatedVideo, response}, "Video updated successfully!!"))
+    return res.status(200).json( new ApiResponse(200, {updatedVideo}, "Video updated successfully!!"))
 })
 
 const deleteVideo = asyncHandler(async (req, res) => {
@@ -257,22 +282,20 @@ const deleteVideo = asyncHandler(async (req, res) => {
     }
 
    
-    const deleteVideo = await Video.findByIdAndDelete(videoId)
+    const deleteVideoDoc = await Video.findByIdAndDelete(videoId)
 
-    if(!deleteVideo){
+    if(!deleteVideoDoc){
         throw new ApiError(400, "Video doesnot exists!!")
     }
 
-    const videoPublicId = deleteVideo.videoFile.slice(60, 80)
+   // const videoPublicId = deleteVideo.videoFile.slice(60, 80)
 
-    const response = await deleteFileOnCloudinary(videoPublicId)
+    const deletingVideoFromCloudinary = await deleteFileOnCloudinary(deleteVideoDoc.videoPublic_id)
+    const deletingVideoThumnailFromCloudinary = await deleteFileOnCloudinary(deleteVideoDoc.thumnailPublic_id)
     
-    console.log(videoPublicId)
-    
-
     return res
     .status(200)
-    .json( new ApiResponse(200, {deleteVideo, response}, "Video has been deleted successfully!!" ))
+    .json( new ApiResponse(200, {deleteVideoDoc}, "Video has been deleted successfully!!" ))
 })
 
 const togglePublishStatus = asyncHandler(async (req, res) => {
