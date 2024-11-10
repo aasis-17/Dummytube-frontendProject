@@ -1,11 +1,11 @@
 import React from 'react'
-import InputField from './InputField'
+import {InputField} from '../index'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faSearch } from '@fortawesome/free-solid-svg-icons'
 import { useForm } from 'react-hook-form'
 import { useDispatch } from 'react-redux'
-import { getSearchTitle, getVideoData} from "../store/videoSlice"
-import { useDebounce } from '../utils'
+import { getSearchTitle, getVideoData} from "../../store/videoSlice"
+import { useDebounce } from '../../utils/index'
 
 function Search() {
     const {register, handleSubmit} = useForm()

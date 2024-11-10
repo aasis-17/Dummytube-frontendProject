@@ -1,23 +1,21 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import userService from '../services/userServices'
-import videoService from '../services/videosService'
-import Navigation from './Navigation'
+import userService from '../../services/userServices'
+import videoService from '../../services/videosService'
+import {Navigation} from "../index"
 import { Outlet, useParams } from 'react-router-dom'
-import { setChannelProfile } from '../store/videoSlice'
-import likeService from '../services/likeServices'
+import { setChannelProfile } from '../../store/videoSlice'
+import likeService from '../../services/likeServices'
+import useDataFetch from '../../utils/useDataFetch'
 
 
 function ChannelProfile() {
+  
     const loginUserId = useSelector((state) => state.authReducer.userData?._id)
-    const channelProfile = useSelector(state => state.videoReducer.channelProfile)
-    console.log(channelProfile)
-    const [loading, setLoading] = useState(true)
 
     const params = useParams()
     const channelId = params.channelId
-
-    console.log(channelId === loginUserId)
+    console.log(channelId, loginUserId)
 
     const dispatch = useDispatch()
 
@@ -39,46 +37,43 @@ function ChannelProfile() {
       }
     ]
 
-    useEffect(() => {
-        try{
+  const fetcher = (channelId) => {
             const channelProfile = userService.getUserProfile(channelId)
             const userVideos = videoService.getAllVideos("",channelId)
             const likedVideos = likeService.getAllLikedVideos()
 
-            Promise.allSettled([channelProfile, userVideos, likedVideos])
-            .then((data) => (
-                console.log(data[2]),
-                dispatch(setChannelProfile({
-                  channelOwnerProfile : data[0].value.data,
-                  userSubscribedChannel : data[0].value.data.isSubscribed,
-                  channelVideos : data[1].value.data,
-                  channelLikedVideos : data[2].value ? data[2].value.data : null
-                }))
-            ))
-            .catch((error) => console.log(error?.message))
-            .finally(() => setLoading(false))
-        }catch(error){
-            console.log(error?.message)
-        }
+          return  Promise.allSettled([channelProfile, userVideos, likedVideos])
+  }
+
+  const {isLoading, error, data} = useDataFetch(fetcher, channelId)
+
+  const channelOwnerProfile = data && data[0].value.data
+
+  const channelVideos = data && data[1].value.data
+
+  const channelLikedVideos = data && data[2].value.data
+ 
+
+  if(isLoading) return <div>loading profile...</div>
+
+  if (error) return <div>{error}</div>
        
-    },[])
-       
-  return !loading ? (
+  return (
     <div>
         
     <div className="min-h-screen bg-gray-300 ">
       {/* Cover Image */}
-      <div className=" h-64 bg-cover bg-center flex place-items-end " style={{ backgroundImage: `url(${channelProfile.channelOwnerProfile.coverImage})` }}>
+      <div className=" h-64 bg-cover bg-center flex place-items-end " style={{ backgroundImage: `url(${channelOwnerProfile.coverImage})` }}>
         {/* Profile Picture and Info */}
         <div className="pl-6  p-5 flex items-center">
           <img
-            src={channelProfile.channelOwnerProfile.avatar}
+            src={channelOwnerProfile.avatar}
             alt="Profile"
             className="w-24 h-24 rounded-full border-4 border-white"
           />
           <div className="ml-4 text-black">
-            <h2 className="text-2xl font-semibold">{channelProfile.channelOwnerProfile.username}</h2>
-            <p className="text-sm inline-block">{channelProfile.channelOwnerProfile.subscriberCount} Subscribers . {channelProfile.channelVideos.pagination.totalVideosCount} Videos</p>
+            <h2 className="text-2xl font-semibold">{channelOwnerProfile.username}</h2>
+            <p className="text-sm inline-block">{channelOwnerProfile.subscriberCount} Subscribers . {channelVideos.pagination.totalVideosCount} Videos</p>
           </div>
         </div>
       </div>
@@ -93,14 +88,14 @@ function ChannelProfile() {
           classNameNav={({isActive}) => (isActive ? "border-b-4 border-gray-500 " :"") }/>
         </div>
 
-      <Outlet />
-
+      <Outlet context={ {channelVideos, channelLikedVideos} }
+   />
 
       </div>
     </div>
   
     </div>
-  ) : (<p>loading...</p>)
+  ) 
 }
 
 export default ChannelProfile

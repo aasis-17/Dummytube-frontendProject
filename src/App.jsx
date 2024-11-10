@@ -1,48 +1,43 @@
 import { useEffect, useState } from 'react'
-import { Footer, Header } from './components/index.js'
+import { Container, Footer, Header } from './components/index.js'
 import {Outlet} from "react-router-dom"
 import { useDispatch } from 'react-redux'
 import authService from './services/authServices.js'
 import { login, logout } from './store/authSlice.js'
 import {QueryClient, QueryClientProvider} from "react-query"
+import useDataFetch from './utils/useDataFetch.js'
 
 function App() {
-  const [loader, setLoader] = useState(true)
+ 
   const dispatch = useDispatch()
 
   const queryClient = new QueryClient()
 
-  useEffect(() => {
-    authService.getCurrentUser()
-    .then((userData) => {
-      console.log(userData)
-      if(userData){
-        dispatch(login(userData.data))
-      }else{
-        dispatch(logout())
-      }
-    })
-    .finally(() => {
-      setLoader(false)
-    })
-  }, [])
+  const fetcher = () => {
+    return authService.getCurrentUser()
+  }
+  const {isLoading, error, data} = useDataFetch(fetcher)
 
-  if (!loader){
+  if (isLoading){
+    return <p>loading app...</p>
+  }
+  if(data) dispatch(login(data.data))
+    else  dispatch(logout())
+
+
     return (
-    <QueryClientProvider client={queryClient}>
-      <div className='overflow-hidden mx-auto h-screen max-w-screen-2xl bg-gray-700 relative '>
+    // <Container className="relative  overflow-x-hidden ">
+      <QueryClientProvider client={queryClient}>
+      <div className=' max-w-6xl mx-auto h-screen overflow-x-hidden'>
         <Header />
-          <main>
-             <Outlet /> 
+          <main className='mt-14 h-screen '>
+          <Outlet /> 
           </main>
-        <Footer />
-      </div>
-    </QueryClientProvider>
+      </div>    
+      </QueryClientProvider>
+    // </Container>
     
     )
-  }else{
-    return <div>Loading....</div>
-  }
     
 }
 

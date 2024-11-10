@@ -1,21 +1,22 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useNavigate, Link } from "react-router-dom"
 import { useDispatch } from "react-redux"
 import { useForm } from 'react-hook-form'
 import authService from '../services/authServices'
 import { login as storeLogin } from '../store/authSlice'
-import InputField from './InputField'
-
+import {Container, InputField} from '../components/index'
+import useDataFetch from '../utils/useDataFetch'
 
 function Login() {
 
     const navigate = useNavigate()
     const dispatch = useDispatch()
-    const [error, setError] = useState("")
+
+    const [handleError, setHandleError] = useState("")
     const {register, handleSubmit} = useForm()
 
     const loginHandle = async(data)=> {
-        setError("")
+        setHandleError("")
         try{
             const userStatus = await authService.login(data)
             if(userStatus){
@@ -25,13 +26,22 @@ function Login() {
                 navigate("/")
             }
         }catch(error){
-            setError(error.message)
+            setHandleError(error.message)
         }
-       
-
     }
 
-  return (
+  const fetcher = () => {
+    return authService.refreshAccessToken()
+  }
+
+  const {isLoading, error, data} = useDataFetch(fetcher)
+
+  if (isLoading) return <div>loading refresh...</div>
+
+  if(data) navigate('/')
+
+  return  (
+    <Container>
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
     <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
       <h2 className="text-2xl font-semibold text-center text-gray-800">Login</h2>
@@ -67,8 +77,6 @@ function Login() {
               <Link  className="font-medium text-blue-600 hover:text-blue-500">Forgot your password?</Link>
             </div>
 
-             {error && <p>{error}</p>}
-
              <button className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" type='submit'>Login</button>
         </form>
 
@@ -77,6 +85,7 @@ function Login() {
         </p>
     </div>
     </div>
+    </Container>
   )
 }
 

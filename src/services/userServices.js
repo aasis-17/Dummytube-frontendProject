@@ -3,13 +3,18 @@
     async getUserProfile(channelId, loginUser= ""){
         try{
         const response = await fetch(`/api/v1/users/channel-profile/${channelId}?loginUser=${loginUser}`)
-        return response.ok && response.json()
-        }catch(error){
-            throw error?.message
-        }     
+        if(response.ok) return response.json()
+        else{
+            throw new Error("something went wrong!!")
+        }
+
+    }catch(error){
+        throw new Error(error?.message);
+    }   
     }
 
     async updateDetail (accountDetail){
+
         try {
             const response = await fetch(`/api/v1/users/update-details`,{
                 method : "PATCH",
@@ -18,10 +23,13 @@
                     "content-type" : "application/json"
                 }
             })
-            console.log(response)
-            return response.ok && response.json()
-        } catch (error) {
-            throw  error?.message
+            if(response.ok) return response.json()
+            else{
+                throw new Error("something went wrong!!")
+            }
+    
+        }catch(error){
+            throw new Error(error?.message);
         }
     }
 
@@ -34,9 +42,13 @@
                     "content-type" : "application/json"
                 }
             })
-            return response.ok && response.json()
-        } catch (error) {
-            throw error?.message
+            if (response.ok) return response.json()
+            else{
+                throw new Error("something went wrong!!")
+            }
+    
+        }catch(error){
+            throw new Error(error?.message);
         }
 
     }
@@ -45,14 +57,37 @@
         try {
             const response = await fetch("/api/v1/users/update-avatar",
                 {
-                    method : "POST",
+                    method : "PATCH",
                     body : avatar,
 
                 }
             )
-            return response.ok && response.json()
-        } catch (error) {
-            throw new Error(error?.message)
+        if (response.ok) return response.json()
+        else{
+            throw new Error("something went wrong!!")
+        }
+
+    }catch(error){
+        throw new Error(error?.message);
+    }
+    }
+
+    async updateCoverImage (coverImage){
+        try {
+            const response = await fetch("/api/v1/users/update-coverImage",
+                {
+                    method : "PATCH",
+                    body : coverImage,
+
+                }
+            )
+            if(response.ok) return response.json()
+            else{
+                throw new Error("something went wrong!!")
+            }
+    
+        }catch(error){
+            throw new Error(error?.message);
         }
     }
 }

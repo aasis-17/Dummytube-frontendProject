@@ -3,35 +3,29 @@ import videoService from '../services/videosService'
 import { useDispatch, useSelector } from 'react-redux'
 import { getVideoData } from '../store/videoSlice'
 import { Link } from "react-router-dom"
-import { Container } from "./index"
-import { useTimeConverterHook } from '../utils'
+import { Container } from "../components/index"
+import { useTimeConverterHook } from '../utils/index'
+import useDataFetch from '../utils/useDataFetch'
 
 
 function Home() {
 
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState("")
-
-  const dispatch = useDispatch()
-
-  const storeVideos = useSelector((state) => state.videoReducer.allVideos)
   const searchTitle = useSelector((state) => state.videoReducer.searchTitle)
-      
-      useEffect(() => {
-        setError("")
 
-          videoService.getAllVideos(searchTitle)
-          .then((data) => dispatch(getVideoData(data.data.allVideos)))
-          .catch((error) => setError(error?.message))
-          .finally(() => setLoading(false))
-        
-       },[searchTitle])
+  const fetcher = () => {
+    return videoService.getAllVideos(searchTitle)
+  }
+  const {isLoading, error, data} = useDataFetch(fetcher, searchTitle)
+
+  if(isLoading) return <div>loading home...</div>
+
+  if(error) return <div>{error}</div>
     
-   return  !loading ?  (
+   return  (
     <>
-    <Container>
-      <div className=" h-full flex justify-evenly flex-wrap gap-y-6 " >   
-        { storeVideos?.map((video) => {
+    {/* <Container className='mt-16'> */}
+      <div className=" flex justify-evenly flex-wrap gap-y-6 bg-gray-400 h-screen" >   
+        { data?.data.allVideos.map((video) => {
           const convertTime = useTimeConverterHook(video.createdAt)
             return(
               <div key={video._id}>
@@ -58,14 +52,9 @@ function Home() {
             )
         })}
         </div>
-        </Container>
-        {error && <p>{error}</p>}
+        {/* </Container> */}
     </>
   ) 
-  :
-   (<h1>loading...</h1>)
-
- 
   
 }
 

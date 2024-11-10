@@ -1,13 +1,12 @@
 import React, { useState } from 'react'
 import { useForm } from "react-hook-form"
 import authService from '../services/authServices'
-import InputField from './InputField'
+import {InputField} from '../components/index'
 import { useNavigate } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
 import { login } from '../store/authSlice'
 
 function SignUp() {
-    console.log("hello")
     
     const [error, setError] = useState("")
     const {register, handleSubmit} = useForm()
@@ -17,13 +16,6 @@ function SignUp() {
     const signUphandler = async(data) => {
       
         const formData = new FormData()
-        //  formData.append("email", data.email)
-        //  formData.append("username", data.username)
-        //  formData.append("fullName", data.fullName)
-        //  formData.append("password", data.password)
-        // formData.append("coverImage", data.coverImage[0])
-        // formData.append("avatar", data.avatar[0])
-        console.log(formData)
 
         Object.keys(data).forEach((key) => {
             if(key === "coverImage" || key === "avatar"){
@@ -46,20 +38,27 @@ function SignUp() {
         
     }
   return (
-    <div className='bg-red  w-full'>
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+    <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
+        <h2 className="text-2xl font-bold text-center mb-6">Sign Up</h2>
         <form onSubmit={handleSubmit(signUphandler)}>
-
-            <InputField 
-                label = "Fullname :"
+            <div className="mb-4">
+                <InputField 
+                classLabel = "block text-sm font-medium text-gray-700"
+                className = "mt-1 block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-200"
+                label = "Fullname"
                 placeholder = "Enter your name"
                 {...register("fullName", {
                     required : true,
                 })
             }
                 />
-            
+            </div>
+            <div className="mb-4">
             <InputField 
-                label = "Username :"
+                label = "Username"
+                className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-200"
+                classLabel = "block text-sm font-medium text-gray-700"
                 type = "text"
                 placeholder = "Enter your Email"
                 {...register("username", {
@@ -67,9 +66,13 @@ function SignUp() {
                 })
             }
                 />
+            </div>
 
+            <div className="mb-4">
             <InputField 
-                label = "Email :"
+                label = "Email"
+                classLabel = "block text-sm font-medium text-gray-700"
+                className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-200"
                 type = "email"
                 placeholder = "Enter your Email"
                 {...register("email", {
@@ -82,9 +85,13 @@ function SignUp() {
                 })
             }
                 />
+            </div>
             
+            <div className="mb-4">
             <InputField 
-                label = "Password :"
+                label = "Password"
+                classLabel = "block text-sm font-medium text-gray-700"
+                className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-200"
                 type = "password"
                 placeholder = "Enter password"
                 {...register("password", {
@@ -92,28 +99,40 @@ function SignUp() {
                 })
             }
                 />
+            </div>
 
+            <div className="mb-4">
             <InputField 
-                label = "Avatar :"
+                label = "Avatar"
+                classLabel = "block text-sm font-medium text-gray-700"
+                className = "mt-1 block  text-sm text-gray-500  focus:outline-none focus:ring focus:ring-blue-200"
                 type = "file"
                 placeholder = "Select file"
                 {...register("avatar", {
                     required : true
                 })
             }
-                />
+            />
+            </div>
 
+            <div className="mb-4">
             <InputField 
-                label = "Cover Image :"
+                label = "Cover Image"
+                classLabel = "block text-sm font-medium text-gray-700" 
+                className = "mt-1 block text-sm text-gray-500  rounded-md focus:outline-none focus:ring focus:ring-blue-200"
                 type = "file"
                 placeholder = "Select file"
                 {...register("coverImage")}
-                />
+            />
+            </div>
 
-                {error && <p>{error}</p>}
+            {error && <p>{error}</p>}
 
-                <button type='submit'>Submit</button>
+            <button 
+            className="w-full py-2 mt-4 text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring focus:ring-blue-300"
+            type='submit'>Submit</button>
         </form>
+    </div>
     </div>
   )
 }

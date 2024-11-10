@@ -4,22 +4,10 @@ import App from './App.jsx'
 import './index.css'
 import store from './store/store.js'
 import { Provider } from "react-redux"
+import DeactivateAccount from './components/DeactivateAccount.jsx'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
-import { SignUp, PageProtector, Logo, Login, Home, VideoDetail, ChannelProfile} from "./components/index.js"
-import CommentSection from './components/videoDetail/CommentSection.jsx'
-import DescriptionSection from './components/videoDetail/DescriptionSection.jsx'
-import LeftSection from './components/videoDetail/LeftSection.jsx'
-import PlaylistContainer from './components/container/PlaylistContainer.jsx'
-import PlaylistSection from './components/videoDetail/PlaylistSection.jsx'
-import Playlist from './components/Playlist.jsx'
-import ProfileVideos from './components/ProfileVideos.jsx'
-import ProfileLikedVideos from './components/ProfileLikedVideos.jsx'
-import YourVideos from './components/YourVideos.jsx'
-import UploadVideo from './components/UploadVideo.jsx'
-import Settings from './components/Settings/Setting.jsx'
-import AccountInfo from './components/Settings/AccountSetting.jsx'
-
-
+import { ChannellikedvideosPage, ChannelplaylistPage, ChannelprofilePage, ChannelvideoPage, HomePage, LoginPage, SettingPage, SignupPage, VideodetailPage,  } from "./pages/index.js"
+import { PageProtector, AccountInfo, ChangePassword, CommentSection, Dashboard, DescriptionSection, Playlist, ProfileLikedVideos, ProfileVideos } from './components/index.js'
 
 const router  = createBrowserRouter([
   {
@@ -28,11 +16,11 @@ const router  = createBrowserRouter([
     children : [
       {
         path : "/",
-        element : <Home />
+        element : <HomePage />
       },
       {
         path : "/setting",
-        element : <Settings />,
+        element : <SettingPage />,
         children : [
           {
             path : "accountSetting",
@@ -40,35 +28,37 @@ const router  = createBrowserRouter([
           },
           {
             path : "changePassword",
-           // element : <ChangePassword />
+            element : <ChangePassword />
           },
           {
             path : "dashboard",
-           // element : <Dashboard />
+            element : <Dashboard />
           },
           {
-            path : "deactivateAccount",
-           // element : <DeactivateAccount />
+            path : "deactivate",
+            element : <DeactivateAccount />
           }
         ]
       },
       {
+        path : "/yourVideos",
+        element : <ChannelvideoPage />
+      },
+      {
+        path : "/likedVideos",
+        element : <ChannellikedvideosPage />
+      },
+      {
         path : "/playlist/:channelId",
-        element : (<PlaylistContainer>
-                      <Playlist />
-                  </PlaylistContainer>)
+        element : <ChannelplaylistPage />
       },
       {
         path : "/channel-profile/:channelId",
-        element : (<PageProtector>
-                    <ChannelProfile />
-                  </PageProtector>),
+        element : <ChannelprofilePage />,
         children : [
           {
             path : "playlist",
-            element : (<PlaylistContainer>
-                          <Playlist />
-                      </PlaylistContainer>)
+            element : ( <Playlist /> )
           },
           {
             path : "videos",
@@ -84,40 +74,31 @@ const router  = createBrowserRouter([
       },
       {
         path : "video-detail/:videoId",
-        element : <VideoDetail />,
+        element : <VideodetailPage />,
         children :[
           {
             path:"comment",
             element : (<PageProtector>
-                <CommentSection />
-                     </PageProtector>),
-            
+                          <CommentSection />
+                       </PageProtector>
+                      ),  
           },
           {
             path : "description",
             element : <DescriptionSection />
-          }
-          
+          }        
         ]
       }
     ]
   },
   
   {
-    
       path : "/create-account",
-      element : 
-         <PageProtector authentication = {false}>
-          <SignUp />
-         </PageProtector>
+      element : <SignupPage />
   },
   {
     path : "/login",
-    element : (
-      <PageProtector authentication = {false}>
-        <Login />
-      </PageProtector>
-    )
+    element : <LoginPage />
   }
 ])
 

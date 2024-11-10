@@ -4,7 +4,7 @@ import { useOutletContext } from 'react-router-dom'
 
 function DescriptionSection() {
 
-  const videoDescription = useSelector(state => state.videoReducer.videoDetail.detail.description)
+  const videoDescription = useSelector(state => state.videoReducer.videoDetail.detail?.description)
   return (
     <div>
         {videoDescription}

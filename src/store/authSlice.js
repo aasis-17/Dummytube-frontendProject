@@ -22,6 +22,15 @@ const authSlice = createSlice({
             state.userData = null
         },
 
+        userDeactivate : (state) => {
+            state.status = false
+            state.userData = null
+        },
+
+        updateUserData : (state, action) => {
+            state.userData = action.payload
+        },
+
         addVideo : (state, action) => {
             state.userVideos.push(action.payload)
         },
@@ -45,6 +54,6 @@ const authSlice = createSlice({
     }
 })
 
-export const { login, logout, addVideo, deleteVideo, editVideoDetail} = authSlice.actions
+export const {userDeactivate, login, logout, addVideo, deleteVideo, editVideoDetail, updateUserData} = authSlice.actions
 
 export default authSlice.reducer

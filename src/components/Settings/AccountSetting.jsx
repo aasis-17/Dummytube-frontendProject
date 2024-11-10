@@ -1,26 +1,53 @@
 import React, { useRef, useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useMutation, useQuery } from 'react-query';
 import userService from '../../services/userServices';
 import { useForm} from "react-hook-form"
+import { updateUserData } from '../../store/authSlice';
 
 const AccountInfo = () => {
   // Initial state for the account information
   const loginUser = useSelector(state => state.authReducer.userData)
-  console.log(loginUser)
-  const [account, setAccount] = useState(loginUser);
-  
 
-  const {mutate, isSuccess} = useMutation({
-    mutationFn : () => userService.updateDetail(account),
+  const [account, setAccount] = useState(loginUser);
+  const dispatch = useDispatch()
+  let inputRef = useRef(null)
+
+  const mutateAccountDetail = useMutation({
+    mutationFn : () => userService.updateDetail({fullName : account.fullName, username : account.username}),
+    onSuccess : () => {
+      dispatch(updateUserData(account))
+    },
+    onError : () => {
+      dispatch(updateUserData(loginUser))
+    }
     
   })
-   // Dummy data for channel stats
-   const stats = {
-    totalSubscribers: 12500,
-    totalVideos: 75,
-    totalLikes: 47000,
-  };
+
+  const mutateAvatar = useMutation({
+    mutationFn : (formData) =>{ 
+      userService.updateAvatar(formData)},
+    onSuccess : () => {
+      dispatch(updateUserData(account))
+      toggleEdit("avatar")
+    },
+    onError : () => {
+      dispatch(updateUserData(loginUser))
+    }
+
+  })
+
+  const mutateCoverImage = useMutation({
+    mutationFn : (formData) => userService.updateCoverImage(formData),
+    onSuccess : () => {
+      dispatch(updateUserData(account))
+      toggleEdit("coverImage")
+    },
+    onError : () => {
+      dispatch(updateUserData(loginUser))
+    }
+
+  })
 
 
   // State for managing edit mode
@@ -41,47 +68,59 @@ const AccountInfo = () => {
   };
 
   const cancelImage = (field) => {
+
+    inputRef.current = null
     toggleEdit(field)
     setAccount(prev => ({...prev, [field] : loginUser[field]}))
   }
 
   const handleImage = (e, field) => {
-    console.log(field)
-  //   const file = e.target.files[0];
-  //   const reader = new FileReader();
- 
-  //  reader.onloadend = () => {
     
-  //    setAccount((prev) => ({ ...prev, [field]: reader.result }));
-  //  };
-  //  if (file) {
-  //    reader.readAsDataURL(file);
-  //  }
+    console.log(field)
+    const file = e.target.files[0];
+    const reader = new FileReader();
+ 
+   reader.onloadend = () => {
+     setAccount((prev) => ({ ...prev, [field]: reader.result }));  
+   };
+   if (file) {
+     reader.readAsDataURL(file);
+   }
+   
+    inputRef.current = file
+    e.target.value = null
+   
   }
 
-  const handleImageChange = (data) => {
+  const handleImageChange = (data, field) => {
 
-      const formData = new FormData()
-      formData.append("avatar",data.avatar[0])
-      console.log(formData)
-    //  userService.updateAvatar(formData)
-    //  .then((data) => console.log(data))
-    //  .catch(error => console.log(error))
- 
+    const formData = new FormData()
+    formData.append(field, inputRef.current)
 
+      switch (field) {
+
+        case "avatar" : 
+
+          mutateAvatar.mutateAsync(formData)
+          break;
+        
+
+        case "coverImage" : 
+        
+          mutateCoverImage.mutateAsync(formData)
+          break;
+      }
   };
 
   // Handler for toggling edit mode
   const toggleEdit = (field) => {
     if(["fullname", "username"].some((arrField) => arrField === field) && isEditing[field]){
-      mutate()
+      mutateAccountDetail.mutate()
+      
       console.log("success")
     }
-
      setIsEditing((prev) => ({ ...prev, [field]: !prev[field] }));
-    
-
-
+  
   };
 
   return (
@@ -90,81 +129,83 @@ const AccountInfo = () => {
       <div className="relative h-48 w-full rounded-lg overflow-hidden">
         <img src={account.coverImage} alt="Cover" className="object-coverImage w-full h-full" />
 
-        
-{/* <form onSubmit={handleSubmit(handleImageChange)}> */}
+        <form onSubmit={handleSubmit((data) => handleImageChange(data, "coverImage"))}>
 
     <label hidden={isEditing.coverImage} onClick={() => toggleEdit("coverImage")} htmlFor="example" className="absolute top-2 right-2 px-4 py-2 bg-gray-800 text-white text-sm rounded-lg" >
       edit
       </label>
     {isEditing.coverImage && (
       <div className='absolute top-2 right-2 flex flex-col gap-3' >
-      <button type='submit' className=" px-4 py-2 bg-gray-800 text-white text-sm rounded-lg">save</button>
-      <button onClick={() => cancelImage("coverImage")} className=" px-4 py-2 bg-gray-800 text-white text-sm rounded-lg" >cancel</button>
+      <button  type='submit' className=" px-4 py-2 bg-gray-800 text-white text-sm rounded-lg">save</button>
+      <button type='button' onClick={() => cancelImage( "coverImage")} className=" px-4 py-2 bg-gray-800 text-white text-sm rounded-lg" >cancel</button>
       </div>
     )}
   <input
     id='example'
     type="file"
     accept="image/*"
-    onChange={(e) => handleImage(e, 'coverImage')}
+    onInput = {(e) => handleImage(e, 'coverImage')}
     className="absolute top-2 left-20"
     hidden     
+    ref={inputRef}
+    {...register("coverImage")}
   />
 
-    {/* </form> */}
+    </form>
            
       </div>
 
       {/* Avatar and Information */}
-      <div className="flex items-center space-x-4 ">
+      <div className="flex mt-5 items-center space-x-4 ">
         {/* Avatar */}
-        <div className="relative">
+        <div className="relative mr-5">
           <img
             src={account.avatar}
             alt="Avatar"
-            className="w-24 h-24 rounded-full object-coverImage border-4 border-white shadow-lg"
+            className="w-24 h-24 rounded-2xl object-coverImage border-2   shadow-lg"
           />
 
-          {/* <form onSubmit={handleSubmit(handleImageChange)}> */}
-      <label hidden={isEditing.avatar} onClick={() => toggleEdit("avatar")} htmlFor="example1" className="absolute top-2 right-2 px-4 py-2 bg-gray-800 text-white text-sm rounded-lg" >
-      edit
+    <form onSubmit={handleSubmit((data) => handleImageChange(data, "avatar"))}>
+      <label hidden={isEditing.avatar} onClick={() => toggleEdit("avatar")} htmlFor="example123" className="absolute text-xs top-0  px-2 py-1 bg-gray-800 text-white  rounded-lg" >
+        edit
       </label>
-
     {isEditing.avatar && (
-      <div className='absolute top-30 right-2 flex gap-3' >
-      <button type='submit' className=" px-2 py-1  bg-gray-800 text-white text-xs rounded-lg">save</button>
-      <button onClick={() => cancelImage("avatar")} className=" px-1 py-1  bg-gray-800 text-white text-xs rounded-lg" >cancel</button>
+      <div className='absolute top-2 right-2 flex flex-col gap-3' >
+        <button type='submit' className=" px-4 py-2 bg-gray-800 text-white text-sm rounded-lg">save</button>
+        <button type='button' onClick={() => cancelImage( "avatar")} className=" px-4 py-2 bg-gray-800 text-white text-sm rounded-lg" >cancel</button>
       </div>
     )}
-            
-            <input
-              id='example1'
-              type="file"
-              accept="image/*"
-              onChange={() => console.log("hello")}
-              className="absolute bottom-0 right-0"
-              hidden      
-              {...register("avatar",{required : true})}
-            />
-            {/* </form>  */}
+  <input
+    id='example123'
+    type="file"
+    accept="image/*"
+    onInput={(e) => handleImage(e, 'avatar')}
+    className="absolute top-2 left-20"
+    hidden  
+    {...register("avatar")}   
+  />
+</form> 
           
         </div>
 
         {/* Account Information */}
-        <div>
+        
+        <div >
           {/* Fullname */}
-          <div className="flex items-center space-x-2">
+          <div className="flex mt-2 items-center space-x-2 text-gray-700">
+          <label className="text-2xl font-semibold">Fullname :</label>
             {isEditing.fullname ? (
               <input
                 type="text"
                 name="fullName"
                 value={account.fullName}
                 onChange={handleInputChange}
-                className="border border-gray-300 p-2 rounded-lg"
-                
+                className="border border-gray-300 p-2 rounded-lg"                
               />
             ) : (
-              <h2 className="text-2xl font-bold">{account.fullName}</h2>
+              <>
+                  <p className="text-2xl font-semibold">{account.fullName}</p>
+              </>    
             )}
             <button
               onClick={() => toggleEdit('fullname')}
@@ -172,10 +213,12 @@ const AccountInfo = () => {
             >
               {isEditing.fullname ? 'Save' : 'Edit'}
             </button>
+            {mutateAccountDetail.isLoading && <p>loading..</p>}
           </div>
 
           {/* Username */}
-          <div className="flex items-center space-x-2 mt-2">
+          <div className="flex items-center space-x-2 mt-2 text-gray-700">
+          <label className="text-2xl font-semibold">Username :</label>
             {isEditing.username ? (
               <input
                 type="text"
@@ -184,8 +227,11 @@ const AccountInfo = () => {
                 onChange={handleInputChange}
                 className="border border-gray-300 p-2 rounded-lg"
               />
-            ) : (
-              <p className="text-gray-600">@{account.username}</p>
+            ) : (<>
+                 
+                   <p className="text-2xl font-semibold">{account.username}</p>
+            </>
+             
             )}
             <button
               onClick={() => toggleEdit('username')}
@@ -193,45 +239,19 @@ const AccountInfo = () => {
             >
               {isEditing.username ? 'Save' : 'Edit'}
             </button>
+
           </div>
+          <div className="flex items-center space-x-2 mt-2 text-gray-700">
+              <label className="text-2xl font-semibold">Email :</label>
+              <p className="text-2xl font-semibold">{account.email}</p>
+            </div>
         </div>
       </div>
 
     
- 
-    <div className="p-6 max-w-6xl mx-auto mt-4">
-      
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-        {/* Total Subscribers */}
-        <div className="bg-white p-6 rounded-lg shadow-lg">
-          <h2 className="text-lg font-semibold text-gray-600">Total Subscribers</h2>
-          <p className="text-3xl font-bold text-blue-600 mt-4">
-            {stats.totalSubscribers.toLocaleString()}
-          </p>
-        </div>
+    
 
-        {/* Total Videos */}
-        <div className="bg-white p-6 rounded-lg shadow-lg">
-          <h2 className="text-lg font-semibold text-gray-600">Total Videos</h2>
-          <p className="text-3xl font-bold text-green-600 mt-4">
-            {stats.totalVideos.toLocaleString()}
-          </p>
-        </div>
-
-        {/* Total Video Likes */}
-        <div className="bg-white p-6 rounded-lg shadow-lg">
-          <h2 className="text-lg font-semibold text-gray-600">Total Video Likes</h2>
-          <p className="text-3xl font-bold text-red-600 mt-4">
-            {stats.totalLikes.toLocaleString()}
-          </p>
-        </div>
-      </div>
-    </div>
-
-
-
-    </div>
+     </div>
   );
 };
 

@@ -1,95 +1,80 @@
-import React, { useEffect, useState } from 'react'
+import React, {  useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome"
 import {faHeart} from "@fortawesome/free-regular-svg-icons"
 import likeService from '../../services/likeServices'
-import userService from '../../services/userServices'
 import subService from '../../services/subscriptionServise'
-import { useSelector } from 'react-redux'
-import PlaylistSection from './PlaylistSection'
+import { PlaylistSection} from '../index'
 import { setChannelProfile, setVideoDetails } from '../../store/videoSlice'
-import { useDispatch } from 'react-redux'
-import {useDebounce} from "../../utils"
-import PlaylistContainer from '../container/PlaylistContainer'
-
+import {useSelector, useDispatch } from 'react-redux'
+import {useDebounce} from "../../utils/index"
+import { useMutation } from 'react-query'
+import useDataFetch from '../../utils/useDataFetch'
 
 function VideoSection() {
 
   const videoDetail = useSelector((state) => state.videoReducer.videoDetail)
   const channelProfile = useSelector(state => state.videoReducer.channelProfile)
-  const loginUserId = useSelector((state) => state.authReducer.userData?._id)
-  console.log(videoDetail )
+  const authStatus = useSelector((state) => state.authReducer.status)
 
-  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
 
   const dispatch = useDispatch()
-  
 
-    const [publicId, setPublicId] = useState(() => getPublicId(videoDetail.detail.videoFile))
-    const [playlistDisplay, setPlaylistDisplay] = useState(false)
+  const [playlistDisplay, setPlaylistDisplay] = useState(false)
     
+  const navigate = useNavigate()
 
-    const navigate = useNavigate()
-
-
-       function getPublicId  (videoFile)   {
-        const arr = videoFile.split("/")
-        return arr[arr.length - 1].replace(".mp4", "")
+  const getPublicId = (videoFile) =>
+    {
+    const arr = videoFile.split("/")
+    return arr[arr.length - 1].replace(".mp4", "") 
     }
 
-    const toggleLike = async (videoId) => {
-        try{
-          const response = await likeService.toggleVideoLike(videoId)
-          if(response.ok) dispatch(setVideoDetails({
-            userLikedVideo : !videoDetail.userLikedVideo
-          }))
-          else {
-                navigate("/login")
+  const publicId = useRef(getPublicId(videoDetail.detail?.videoFile))  
+
+  const toggleLike = async (videoId) => {
+      setError("")
+      try{
+        !authStatus && navigate("/login")
+          await likeService.toggleVideoLike(videoId)
+          dispatch(setVideoDetails({
+          userLikedVideo : !videoDetail.userLikedVideo
+        }))
+
         }
-        }catch(error){
-          console.log(error?.message)
+        catch(error){
+          setError(error?.message)
         }    
       }
 
-      const debounceToggleLike = useDebounce(toggleLike, 300)
+  const debounceToggleLike = useDebounce(toggleLike, 300)
 
-      const toggleSubscription = async (channelId) => {
-        try {
-          const response = await subService.toggleSubscription(channelId)
-          response.ok && dispatch(setChannelProfile({
+  const toggleSubscription = async (channelId) => {
+    setError("")
+      try {
+        !authStatus && navigate("/login")
+            await subService.toggleSubscription(channelId)
+            dispatch(setChannelProfile({
             userSubscribedChannel : !channelProfile.userSubscribedChannel
           }))
-        } catch (error) {
-          console.log(error?.message)
-          
+        }
+        catch (error) {
+          setError(error?.message) 
         }
       }
 
-      const debounceToggleSubscription = useDebounce(toggleSubscription, 300)
+  const debounceToggleSubscription = useDebounce(toggleSubscription, 300)
 
-      useEffect(() => {
-
-        userService.getUserProfile(videoDetail.detail.owner, loginUserId)
-        .then((data) => (
-          dispatch(setChannelProfile(
-            {
-            channelOwnerProfile : data.data,
-            userSubscribedChannel : data.data.isSubscribed
-            }
-        ))
-      ))
-        .catch((error) => console.log(error?.message))
-        .finally (() => setLoading(false))
-
-    },[])
-
-  return !loading ? (
+  if(error) return  <p>{error}</p>
+  
+  return  (
     <div className='relative'>
         <iframe
         className='rounded-2xl object-fill'
         width="100%"
         height="450"
-        src={`https://player.cloudinary.com/embed/?public_id=${publicId}&cloud_name=backend-project-chai&player[controls]=true`}
+        src={`https://player.cloudinary.com/embed/?public_id=${publicId.current}&cloud_name=backend-project-chai&player[controls]=true`}
         allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
         allowFullScreen
         
@@ -113,29 +98,20 @@ function VideoSection() {
         </div>
         <div className='flex items-center gap-2 w-[40%] cursor-pointer justify-evenly'>
             <div onClick={() => debounceToggleLike(videoDetail.detail._id)}>
-            <FontAwesomeIcon icon={faHeart} style={{color: videoDetail.userLikedVideo ? "#db0f4c" : ""}} />
-            <span>{videoDetail.detail.videoLikeCount}</span>
+              <FontAwesomeIcon icon={faHeart} style={{color: videoDetail.userLikedVideo ? "#db0f4c" : ""}} />
+              <span>{videoDetail.detail.videoLikeCount}</span>
             </div>
+
             <div onClick={() => setPlaylistDisplay((prev => !prev))} className='cursor-pointer'>
-              playlist
-            { playlistDisplay &&  
-            (
-            //<PlaylistContainer videoId={videoDetail.detail._id} userId = {loginUserId} >
-                 <PlaylistSection 
-                //videoId={videoDetail.detail._id} 
-                //userId = {loginUserId}
-                 />
-           // </PlaylistContainer>
-               
-            )
-               }
-              </div>
+                playlist
+                {playlistDisplay &&  <PlaylistSection />}
+            </div>
         </div>
       </div>
         </div>
       </div>
     
-  ) : (<p>loading...</p>)
+  ) 
 }
 
 export default VideoSection

@@ -14,11 +14,13 @@ class authServices{
         })
         if(response.ok){
            await this.login({email,  password})
-           return response     
+           return response.json()     
+        }else{
+            throw new Error("something went wrong!!")
         }
 
     }catch(error){
-        throw error;
+        throw new Error(error?.message);
     }
 }
 
@@ -36,10 +38,13 @@ class authServices{
                 })
             })
 
-            if(response.ok) return response
-
+            if(response.ok) return response.json()
+            else{
+                throw new Error("something went wrong!!")
+            }
+    
         }catch(error){
-            throw error;
+            throw new Error(error?.message);
         }
     }
 
@@ -48,10 +53,33 @@ class authServices{
             const response = await fetch("/api/v1/users/logout",{
                 method: "POST"
             })
-            return response.ok && response
+            if(response.ok) return response.json()
+            else{
+                throw new Error("something went wrong!!")
+            }
+    
         }catch(error){
-            throw error
+            throw new Error(error?.message);
         }
+    }
+
+    async changePassword(formData) {
+        try {
+            const response =  fetch(`/api/v1/users/change-password`,{
+                method : "POST",
+                body : JSON.stringify(formData),
+                headers : {
+                    "content-type" : "application/json"
+                }
+            })
+           if(response.ok) return response.json()
+           else{
+            throw new Error("something went wrong!!")
+        }
+
+    }catch(error){
+        throw new Error(error?.message);
+    }
     }
 
     async getCurrentUser(){
@@ -60,12 +88,59 @@ class authServices{
         const response = await fetch("/api/v1/users/current-user")
 
         if(response.ok) return response.json()
-        
-            
-        }catch(error){
-            console.log(error.message)
+        else{
+            throw new Error("something went wrong!!")
         }
+
+    }catch(error){
+        throw new Error(error?.message);
+    }
         
+    }
+
+    async channelDashboard (channelId) {
+        try {
+            const response = await fetch(`/api/v1/dashboard/getchannel-stats/${channelId}`)
+
+            if (response.ok) return response.json()
+
+            else throw new Error("Something went wrong!")
+
+        } catch (error) {
+            throw new Error(error?.message)
+        }
+    }
+
+    async refreshAccessToken () {
+        try {
+            const response = await fetch("/api/v1/users/refreshed-accesstoken",{
+                method : "POST",
+                
+            })
+            console.log(response)
+           if(response.ok) return response.json();
+            else{
+            throw new Error("something went wrong!!")
+        }
+
+        }catch(error){
+        throw new Error(error?.message);
+    }
+    }
+
+    async deactivateAccount (){
+        try {
+            const response = await fetch('/api/v1/users/deactivate-account',
+                {
+                    method : "DELETE"
+                }
+            )
+            if(response.ok) return response.json()
+                else throw new Error("something went wrong")
+        } catch (error) {
+            throw error
+            
+        }
     }
 }
 

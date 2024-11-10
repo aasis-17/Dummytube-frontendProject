@@ -25,7 +25,7 @@ const Settings = () => {
             </Link>
           </li>
           <li>
-            <Link to={"/setting/deactivateAccount"} className="block p-2 rounded hover:bg-gray-700">
+            <Link to={"/setting/deactivate"} className="block p-2 rounded hover:bg-gray-700">
               Deactivate Channel
             </Link>
           </li>
@@ -33,7 +33,7 @@ const Settings = () => {
       </nav>
 
       {/* Right Content Section */}
-      <div className="flex-1 p-6 bg-gray-400">
+      <div className="flex-1 p-2 bg-gray-400">
         <Outlet/>
       </div>
     </div>

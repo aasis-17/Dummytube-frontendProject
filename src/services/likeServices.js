@@ -3,29 +3,40 @@ class likeServices {
     async toggleVideoLike (videoId) {
         try{
             const response = await fetch(`/api/v1/like/toggle-videoLike/${videoId}`)
-            return response.ok && response
+            if (response.ok) return response.json()
+            else{
+                throw new Error("something went wrong!!")
+            }
+    
         }catch(error){
-            console.log(error?.message)
+            throw new Error(error?.message);
         }
     }
 
     async toggleCommentLike (commentId){
         try{
             const response = await fetch(`/api/v1/like/toggle-commentLike/${commentId}`)
-            return response.ok && response
+            if (response.ok) return response.json()
+            else{
+                throw new Error("something went wrong!!")
+            }
+    
         }catch(error){
-            console.log(error?.message)
-        }
+            throw new Error(error?.message);
+        }            
        
     }
 
     async getAllLikedVideos () {
         try {
             const response = await fetch('/api/v1/like/get-allLiked-videos')
-            return response.ok && response.json()
-        } catch (error) {
-            console.log(error?.message)
-            
+            if (response.ok) return response.json()
+            else{
+                throw new Error("something went wrong!!")
+            }
+    
+        }catch(error){
+            throw new Error(error?.message);
         }
     }
 

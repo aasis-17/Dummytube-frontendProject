@@ -1,39 +1,41 @@
 import React, { useEffect, useState } from 'react'
 import playlistService from '../../services/playlistService'
-import PageProtector from '../AuthLayout'
-import { useSelector } from 'react-redux'
-import { useDispatch } from 'react-redux'
+import {PageProtector} from '../index'
+import { useSelector, useDispatch } from 'react-redux'
 import { setChannelPlaylist } from '../../store/playlistSlice'
-import { useDebounce } from '../../utils'
+import { useDebounce } from '../../utils/index'
+import useDataFetch from '../../utils/useDataFetch'
 
 
-function PlaylistSection(
- // {userId, videoId}
-) {
-  const allPlaylist = useSelector(state => state.playlistReducer.channelPlaylist)
+function PlaylistSection() {
+  
   const channelId = useSelector(state => state.authReducer.userData?._id)
   const videoId = useSelector ((state) => state.videoReducer.videoDetail.detail._id)
 
-  const dispatch = useDispatch()
+  const [handleError, setHandleError] = useState("")
 
-    const [loading, setLoading] = useState(true)
+  const [playlistName, setPlaylistName] = useState("")
+  const [ toggleReadonly, setToggleReadonly] = useState(false)
 
-    const [playlistName, setPlaylistName] = useState("")
-    const [ toggleReadonly, setToggleReadonly] = useState(false)
+  const fetcher = () => {
+    return playlistService.getUserPlaylist(channelId)
+  }
 
+  const {isLoading, error, data} = useDataFetch(fetcher, channelId)
 
-    const handleChange = async(e,playlistId) => {
+  const handleChange = async(e, playlistId) => {  
+      setHandleError("") 
       const {name, checked} = e.target
       try{
         if(checked){
-          const response = await playlistService.addVideoToPlaylist(playlistId, videoId)
-          response.ok && alert(`video added to ${name} playlist`)
+          await playlistService.addVideoToPlaylist(playlistId, videoId)
+          alert(`video added to ${name} playlist`)
         }else{
-          const response = await playlistService.removeVideoFromPlaylist(playlistId, videoId)
-          response && alert(`video deleted from ${name} playlist`)
+          await playlistService.removeVideoFromPlaylist(playlistId, videoId)
+          alert(`video deleted from ${name} playlist`)
         }
       }catch(error){
-        console.log(error?.message)
+        setHandleError(error?.message)
       }
 
     }
@@ -41,34 +43,25 @@ function PlaylistSection(
     const debounceHandleChange = useDebounce(handleChange, 300)
 
     const createPlaylist = async (name) =>{
+      setHandleError("")
       try{
-        const response = await playlistService.createPlaylist(name)
-        response.ok && setToggleReadonly(false)
+        await playlistService.createPlaylist(name)
+        setToggleReadonly(false)
       }catch(error){
-        console.log(error?.message)
+        setHandleError(error?.message)
       }
     }
 
-    useEffect(() => {
-
-        const response = playlistService.getUserPlaylist(channelId)
-        response.then((response) => response.json())
-        .then((data) => (
-          console.log(data),
-          dispatch(setChannelPlaylist(data.data))
-        ))
-        .catch((error) => console.log(error?.message))
-        .finally(()=> setLoading(false))
-    },[toggleReadonly])
-
   return (
     <PageProtector>
-      {!loading &&
-    <div className='w-56  bg-white absolute bottom-24 right-16 rounded-lg '>
-      
+      <div className='w-56  bg-white absolute bottom-24 right-16 rounded-lg '>
+        {isLoading && <div>Loading Playlist...</div>}
+        {error && <h1>{error}</h1>}
+        {handleError && (<div>{handleError}</div>)}
+
         <ul className=' flex flex-col gap-1  text-xl'>
             {
-                allPlaylist.map((playlist) => (
+                data?.data.map((playlist) => (
                     <li onClick={(e) => e.stopPropagation()} key={playlist._id} className='flex justify-between px-4 py-4 shadow-sm hover:shadow-lg'>
                       <label id={playlist._id}>{playlist.name}</label>
                       <input 
@@ -79,8 +72,7 @@ function PlaylistSection(
                         onClick={(e) => debounceHandleChange(e,playlist._id)} />
                     </li>
                   
-                ))   
-              
+                ))                
             }
             <li 
               onClick={
@@ -99,8 +91,7 @@ function PlaylistSection(
             </li>
         </ul>
     </div>
- } 
-    </PageProtector>
+  </PageProtector>
   )
 }
 

@@ -1,12 +1,20 @@
 class commentServices {
 
     async getVideoComment (videoId){
+        try{
         const response = await fetch(`/api/v1/comment/getall-video-comments/${videoId}`)
-        return response.ok && response 
+        if(response.ok) return response.json()
+        else{
+            throw new Error("something went wrong!!")
+        }
+    
+    }catch(error){
+        throw new Error(error?.message);
+    }
     }
 
     async addComment (videoId, data) {
-        console.log(data)
+        try{
         const response = await fetch(`/api/v1/comment/add-comment/${videoId}`,
             {
                 method: "POST",
@@ -18,7 +26,14 @@ class commentServices {
                 })
             }
         )
-        return response.ok && response
+        if(response.ok)return response.json()
+        else{
+            throw new Error("something went wrong!!")
+        }
+
+    }catch(error){
+        throw new Error(error?.message);
+    }
     }
 
   

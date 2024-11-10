@@ -1,10 +1,10 @@
 import React, {useState} from 'react'
 import { useMutation, useQuery } from 'react-query'
-import videoService from '../services/videosService'
+import videoService from '../../services/videosService'
 import { useSelector } from 'react-redux'
 import { Link } from "react-router-dom"
-import YourVideoCard from './YourVideoCard'
-import UploadVideo from './UploadVideo'
+import {YourVideoCard, UploadVideo} from '../index'
+
 
 
 function YourVideos() {
@@ -15,7 +15,8 @@ function YourVideos() {
 
   const {data, isLoading, error} = useQuery({
     queryFn : () => videoService.getAllVideos("", loginUserId),
-    queryKey : ["userVideos"]
+    queryKey : ["userVideos"],
+    refetchOnWindowFocus: false
   })
 
 
@@ -26,10 +27,10 @@ function YourVideos() {
   console.log(data)
     
   return (
-    <div className='bg-gray-200'>
+    <div className='bg-gray-200 h-screen'>
       <div className='flex justify-between px-4 h-20 items-center'>
         <div className='text-3xl font-semibold'>Your Videos</div>
-        <span onClick={() => setToggleVideoForm(prev => !prev)} className='text-2xl font-medium'>+ Upload</span>
+        <span onClick={() => setToggleVideoForm(prev => !prev)} className='cursor-pointer text-2xl font-medium'>+ Upload</span>
       </div>
       <div className="flex flex-col gap-5 max-w-auto px-5">
       {data.data.allVideos.length !== 0 ?  data.data.allVideos.map((video) => (
@@ -43,7 +44,7 @@ function YourVideos() {
           {
             toggleVideoForm && 
             (<div onClick={ () => setToggleVideoForm(false)} className='backdrop-blur-sm w-screen h-screen absolute top-0'>
-              <UploadVideo />
+              <UploadVideo setToggleVideoForm={setToggleVideoForm} edit={false} />
             </div>)
             
           }

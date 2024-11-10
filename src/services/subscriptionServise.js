@@ -3,9 +3,13 @@ class subscriptionServices {
     async toggleSubscription (channelId){
         try{
             const response = await fetch(`/api/v1/subscription/toggle-subscription/${channelId}`)
-            return response.ok && response
+            if (response.ok) return response.json()
+            else{
+                throw new Error("something went wrong!!")
+            }
+    
         }catch(error){
-            console.log(error?.message)
+            throw new Error(error?.message);
         }
         
     }
